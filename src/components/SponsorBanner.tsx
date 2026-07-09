@@ -36,24 +36,27 @@ export default function SponsorBanner() {
       href={sponsor.link}
       target="_blank"
       rel="noopener noreferrer"
-      className="block mx-4 my-4 rounded-xl overflow-hidden bg-gradient-to-r from-gray-900 to-gray-700 text-white"
+      className="block mx-4 my-4 bg-accent hover:bg-accent/90 transition-colors group"
     >
       <div className="flex items-center gap-4 p-4">
-        <div className="relative w-14 h-14 shrink-0 bg-white rounded-lg p-2">
+        <div className="relative w-12 h-12 shrink-0 bg-white/15 border border-white/20">
           <Image
             src={sponsor.logo}
             alt={sponsor.marca}
             fill
-            className="object-contain p-1"
+            sizes="48px"
+            className="object-contain p-1.5"
           />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-xs uppercase tracking-wide text-gray-300">
-            Patrocinado
+          <span className="font-mono text-[10px] uppercase tracking-wider text-white/70">
+            [ Sponsor ]
+          </span>
+          <p className="font-body text-sm text-white font-medium truncate">
+            {sponsor.marca}
           </p>
-          <p className="font-semibold truncate">{sponsor.marca}</p>
           {sponsor.descripcion && (
-            <p className="text-sm text-gray-300 truncate">
+            <p className="font-body text-xs text-white/80 truncate">
               {sponsor.descripcion}
             </p>
           )}

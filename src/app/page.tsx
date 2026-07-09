@@ -1,6 +1,7 @@
 import Hero from "@/components/Hero";
 import ProductGrid from "@/components/ProductGrid";
 import SponsorBanner from "@/components/SponsorBanner";
+import LatestVideo from "@/components/LatestVideo";
 
 export default function Home() {
   return (
@@ -8,6 +9,7 @@ export default function Home() {
       <Hero />
       <SponsorBanner />
       <ProductGrid />
+      <LatestVideo />
     </main>
   );
 }

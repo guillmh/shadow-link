@@ -69,7 +69,12 @@ export default function ProductGrid() {
         <div className="overflow-hidden" ref={emblaRef}>
           <div className="flex gap-3 px-4">
             {productosCarrusel.map((producto) => (
-              <ProductCard key={producto.id} producto={producto} />
+              <div
+                key={producto.id}
+                className="shrink-0 w-[42vw] md:w-[220px] snap-start"
+              >
+                <ProductCard producto={producto} />
+              </div>
             ))}
             {hayMas && (
               <MoreProduct

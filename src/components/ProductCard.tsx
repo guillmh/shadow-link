@@ -15,7 +15,7 @@ export default function ProductCard({ producto }: { producto: Producto }) {
       rel={linkUrl && linkUrl !== "#" ? "noopener noreferrer" : undefined}
       aria-label={`Abrir ${producto.nombre}`}
       title={producto.nombre}
-      className="block shrink-0 w-[42vw] md:w-[220px] snap-start"
+      className="block w-full"
     >
       <div className="relative w-full aspect-square bg-surface border border-hairline overflow-hidden">
         <Image
