@@ -4,12 +4,22 @@ import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
 import { Producto } from "@/types/producto";
 import ProductCard from "./ProductCard";
+import useEmblaCarousel from "embla-carousel-react";
 import CategoryFilter from "./CategoryFilter";
+import MoreProduct from "./MoreProduct";
+
+const LIMITE_CARRUSEL = 5;
 
 export default function ProductGrid() {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoriaActiva, setCategoriaActiva] = useState("todos");
+
+  const [emblaRef] = useEmblaCarousel({
+    align: "start",
+    dragFree: true,
+    containScroll: "trimSnaps",
+  });
 
   useEffect(() => {
     async function fetchProductos() {
@@ -39,6 +49,9 @@ export default function ProductGrid() {
       ? productos
       : productos.filter((p) => p.categoria === categoriaActiva);
 
+  const productosCarrusel = productosFiltrados.slice(0, LIMITE_CARRUSEL);
+  const hayMas = productosFiltrados.length > LIMITE_CARRUSEL;
+
   return (
     <section className="py-6">
       <CategoryFilter
@@ -48,13 +61,28 @@ export default function ProductGrid() {
       />
 
       {loading && (
-        <p className="px-4 text-sm text-gray-400">Cargando productos...</p>
+        <p className="px-4 text-sm text-muted font-mono">
+          Cargando productos...
+        </p>
       )}
-
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 px-4 mt-4">
-        {productosFiltrados.map((producto) => (
-          <ProductCard key={producto.id} producto={producto} />
-        ))}
+      <div className="relative mt-4">
+        <div className="overflow-hidden" ref={emblaRef}>
+          <div className="flex gap-3 px-4">
+            {productosCarrusel.map((producto) => (
+              <ProductCard key={producto.id} producto={producto} />
+            ))}
+            {hayMas && (
+              <MoreProduct
+                categoria={categoriaActiva}
+                cantidadRestante={productosFiltrados.length - LIMITE_CARRUSEL}
+                imagenesPreview={productosFiltrados
+                  .slice(LIMITE_CARRUSEL, LIMITE_CARRUSEL + 3)
+                  .map((p) => p.imagen)}
+              />
+            )}
+          </div>
+        </div>
+        <div className="pointer-events-none absolute top-0 right-0 h-full w-12 bg-gradient-to-l from-background to-transparent" />
       </div>
     </section>
   );

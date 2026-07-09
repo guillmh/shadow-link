@@ -29,9 +29,9 @@ export default function Hero() {
         />
       </div>
 
-      <h1 className="mt-4 text-xl md:text-2xl font-bold">Tu Nombre</h1>
+      <h1 className="mt-4 text-xl md:text-2xl font-bold">ShadowEZ</h1>
       <p className="mt-1 text-sm md:text-base text-gray-500 max-w-xs">
-        Creador de contenido tech · Reviews, tips y setup
+        guillmhbussines@gmail.com
       </p>
 
       <div className="flex gap-4 mt-4">

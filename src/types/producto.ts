@@ -3,6 +3,7 @@ export type Producto = {
   nombre: string;
   imagen: string;
   categoria: string;
-  links: { tienda: string; url: string }[];
+  link?: string | null;
+  description?: string | null;
   destacado?: boolean;
 };
