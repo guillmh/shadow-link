@@ -50,7 +50,7 @@ export default function SponsorBanner() {
         </div>
         <div className="flex-1 min-w-0">
           <span className="font-mono text-[10px] uppercase tracking-wider text-white/70">
-            [ Sponsor ]
+            [ Whokeys]
           </span>
           <p className="font-body text-sm text-white font-medium truncate">
             {sponsor.marca}

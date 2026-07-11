@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { supabase } from "@/lib/supabase";
+import { fetchProductos } from "@/lib/queries/productos";
 import { Producto } from "@/types/producto";
 import ProductCard from "./ProductCard";
 import useEmblaCarousel from "embla-carousel-react";
@@ -22,21 +22,10 @@ export default function ProductGrid() {
   });
 
   useEffect(() => {
-    async function fetchProductos() {
-      const { data, error } = await supabase
-        .from("productos")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Error cargando productos:", error);
-      } else {
-        setProductos(data as Producto[]);
-      }
+    fetchProductos().then((data) => {
+      setProductos(data);
       setLoading(false);
-    }
-
-    fetchProductos();
+    });
   }, []);
 
   const categorias = useMemo(() => {

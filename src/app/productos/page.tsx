@@ -4,10 +4,11 @@ import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Search } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { fetchProductos } from "@/lib/queries/productos";
 import { Producto } from "@/types/producto";
 import ProductCard from "@/components/ProductCard";
 import CategoryFilter from "@/components/CategoryFilter";
+import Pagination from "@/components/Pagination";
 
 function ProductosContent() {
   const searchParams = useSearchParams();
@@ -17,23 +18,24 @@ function ProductosContent() {
   const [loading, setLoading] = useState(true);
   const [categoriaActiva, setCategoriaActiva] = useState(categoriaInicial);
   const [busqueda, setBusqueda] = useState("");
+  const [pagina, setPagina] = useState(1);
+  const PRODUCTOS_POR_PAGINA = 10; // 5 columnas x 2 filas en desktop
+
+  const handleCategoriaChange = (categoria: string) => {
+    setCategoriaActiva(categoria);
+    setPagina(1);
+  };
+
+  const handleBusquedaChange = (valor: string) => {
+    setBusqueda(valor);
+    setPagina(1);
+  };
 
   useEffect(() => {
-    async function fetchProductos() {
-      const { data, error } = await supabase
-        .from("productos")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Error cargando productos:", error);
-      } else {
-        setProductos(data as Producto[]);
-      }
+    fetchProductos().then((data) => {
+      setProductos(data);
       setLoading(false);
-    }
-
-    fetchProductos();
+    });
   }, []);
 
   const categorias = useMemo(() => {
@@ -50,9 +52,16 @@ function ProductosContent() {
         ? true
         : p.nombre.toLowerCase().includes(busqueda.toLowerCase()),
     );
+  const totalPaginas = Math.ceil(
+    productosFiltrados.length / PRODUCTOS_POR_PAGINA,
+  );
+  const productosPagina = productosFiltrados.slice(
+    (pagina - 1) * PRODUCTOS_POR_PAGINA,
+    pagina * PRODUCTOS_POR_PAGINA,
+  );
 
   return (
-    <main className="max-w-2xl mx-auto pb-12">
+    <main className="max-w-5xl mx-auto pb-12">
       <div className="px-4 pt-6">
         <Link
           href="/"
@@ -75,7 +84,7 @@ function ProductosContent() {
           <input
             type="text"
             value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
+            onChange={(e) => handleBusquedaChange(e.target.value)}
             placeholder="Buscar producto..."
             className="w-full font-mono text-sm pl-9 pr-3 py-2 bg-surface border border-hairline text-ink placeholder:text-muted focus:outline-none focus:border-ink transition-colors"
           />
@@ -86,7 +95,7 @@ function ProductosContent() {
         <CategoryFilter
           categorias={categorias}
           categoriaActiva={categoriaActiva}
-          onChange={setCategoriaActiva}
+          onChange={handleCategoriaChange}
         />
       </div>
 
@@ -96,8 +105,8 @@ function ProductosContent() {
         </p>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 px-4 mt-6">
-        {productosFiltrados.map((producto) => (
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 px-4 mt-6">
+        {productosPagina.map((producto) => (
           <ProductCard key={producto.id} producto={producto} />
         ))}
       </div>
@@ -109,6 +118,11 @@ function ProductosContent() {
             : "No hay productos en esta categoría todavía."}
         </p>
       )}
+      <Pagination
+        paginaActual={pagina}
+        totalPaginas={totalPaginas}
+        onChange={setPagina}
+      />
     </main>
   );
 }
