@@ -36,10 +36,11 @@ export default function SponsorBanner() {
       href={sponsor.link}
       target="_blank"
       rel="noopener noreferrer"
-      className="block mx-4 my-4 bg-accent hover:bg-accent/90 transition-colors group"
+      className="flex mx-4 my-4 border border-hairline hover:border-ink transition-colors group"
     >
-      <div className="flex items-center gap-4 p-4">
-        <div className="relative w-12 h-12 shrink-0 bg-white/15 border border-white/20">
+      <div className="w-1 bg-accent shrink-0" />
+      <div className="flex items-center gap-4 p-4 flex-1 min-w-0">
+        <div className="relative w-12 h-12 shrink-0 border border-hairline bg-surface">
           <Image
             src={sponsor.logo}
             alt={sponsor.marca}
@@ -49,14 +50,14 @@ export default function SponsorBanner() {
           />
         </div>
         <div className="flex-1 min-w-0">
-          <span className="font-mono text-[10px] uppercase tracking-wider text-white/70">
-            [ Whokeys]
+          <span className="font-mono text-[10px] uppercase tracking-wider text-accent">
+            [ Patrocinado ]
           </span>
-          <p className="font-body text-sm text-white font-medium truncate">
+          <p className="font-body text-sm text-ink font-medium truncate">
             {sponsor.marca}
           </p>
           {sponsor.descripcion && (
-            <p className="font-body text-xs text-white/80 truncate">
+            <p className="font-body text-xs text-muted truncate">
               {sponsor.descripcion}
             </p>
           )}
