@@ -43,7 +43,7 @@ export default function Hero() {
         href="mailto:guillmhbusiness@gmail.com"
         className="mt-1 text-sm md:text-base text-muted max-w-xs hover:text-ink transition-colors"
       >
-        guillmhbusiness@gmail.com
+        📧contacto@shadowez.com
       </a>
 
       <div className="flex gap-4 mt-4">
