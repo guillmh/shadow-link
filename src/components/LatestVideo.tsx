@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Play } from "lucide-react";
-import { ULTIMO_VIDEO_URL } from "@/app/data/config";
+import { supabase } from "@/lib/supabase";
 
 function extraerVideoId(url: string): string | null {
   const match = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
@@ -10,15 +10,31 @@ function extraerVideoId(url: string): string | null {
 }
 
 export default function LatestVideo() {
+  const [videoId, setVideoId] = useState<string | null>(null);
   const [reproduciendo, setReproduciendo] = useState(false);
-  const videoId = extraerVideoId(ULTIMO_VIDEO_URL);
+
+  useEffect(() => {
+    async function cargarVideo() {
+      const { data } = await supabase
+        .from("configuracion")
+        .select("ultimo_video_url")
+        .eq("id", 1)
+        .single();
+
+      if (data?.ultimo_video_url) {
+        setVideoId(extraerVideoId(data.ultimo_video_url));
+      }
+    }
+
+    cargarVideo();
+  }, []);
 
   if (!videoId) return null;
 
   return (
     <section className="px-4 py-4">
       <span className="font-mono text-[10px] uppercase tracking-wider text-muted">
-        [ YouTube: Último video ]
+        [ Último video ]
       </span>
 
       <div className="mt-2 relative aspect-video w-full border border-hairline overflow-hidden bg-ink">

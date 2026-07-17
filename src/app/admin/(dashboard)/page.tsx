@@ -12,13 +12,12 @@ export default function AdminProductos() {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [loading, setLoading] = useState(true);
 
-  async function cargarProductos() {
-    const data = await fetchProductos();
-    setProductos(data);
-    setLoading(false);
-  }
-
   useEffect(() => {
+    const cargarProductos = async () => {
+      const data = await fetchProductos();
+      setProductos(data);
+      setLoading(false);
+    };
     cargarProductos();
   }, []);
 

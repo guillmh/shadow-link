@@ -4,6 +4,6 @@ export type Producto = {
   imagen: string;
   categoria: string;
   link?: string | null;
-  description?: string | null;
+  descripcion?: string | null;
   destacado?: boolean;
 };

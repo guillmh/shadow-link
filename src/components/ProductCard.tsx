@@ -5,7 +5,7 @@ export default function ProductCard({ producto }: { producto: Producto }) {
   const linkUrl = producto.link ?? "#";
 
   const textoSecundario =
-    producto.description ??
+    producto.descripcion ??
     (linkUrl && linkUrl !== "#" ? "Ver producto" : "Sin descripción");
 
   return (
