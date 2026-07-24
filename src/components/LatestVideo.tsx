@@ -1,4 +1,5 @@
 "use client";
+import Skeleton from "./Skeleton";
 
 import { useState, useEffect } from "react";
 import { Play } from "lucide-react";
@@ -29,7 +30,16 @@ export default function LatestVideo() {
     cargarVideo();
   }, []);
 
-  if (!videoId) return null;
+  if (!videoId) {
+    return (
+      <section className="px-4 py-4">
+        <span className="font-mono text-[10px] uppercase tracking-wider text-muted">
+          [ Último video ]
+        </span>
+        <Skeleton className="mt-2 aspect-video w-full" />
+      </section>
+    );
+  }
 
   return (
     <section className="px-4 py-4">

@@ -1,7 +1,13 @@
 import Image from "next/image";
 import type { Producto } from "@/types/producto";
 
-export default function ProductCard({ producto }: { producto: Producto }) {
+export default function ProductCard({
+  producto,
+  priority = false,
+}: {
+  producto: Producto;
+  priority?: boolean;
+}) {
   const linkUrl = producto.link ?? "#";
 
   const textoSecundario =
@@ -24,6 +30,7 @@ export default function ProductCard({ producto }: { producto: Producto }) {
           fill
           sizes="(max-width: 768px) 42vw, 220px"
           className="object-contain p-4"
+          priority={priority}
         />
         <span className="absolute top-2 left-2 font-mono text-[10px] uppercase tracking-wider text-muted bg-background/90 px-1.5 py-0.5 border border-hairline">
           {producto.categoria}

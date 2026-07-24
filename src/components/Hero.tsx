@@ -34,7 +34,9 @@ export default function Hero() {
           src="/logo.webp"
           alt="Foto de perfil"
           fill
+          sizes="(max-width: 768px) 96px, 128px"
           className="object-cover"
+          priority
         />
       </div>
 

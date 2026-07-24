@@ -9,6 +9,7 @@ import { Producto } from "@/types/producto";
 import ProductCard from "@/components/ProductCard";
 import CategoryFilter from "@/components/CategoryFilter";
 import Pagination from "@/components/Pagination";
+import ProductCardSkeleton from "@/components/ProductCardSkeleton";
 
 function ProductosContent() {
   const searchParams = useSearchParams();
@@ -100,16 +101,20 @@ function ProductosContent() {
       </div>
 
       {loading && (
-        <p className="px-4 mt-4 text-sm text-muted font-mono">
-          Cargando productos...
-        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 px-4 mt-6">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <ProductCardSkeleton key={i} />
+          ))}
+        </div>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 px-4 mt-6">
-        {productosPagina.map((producto) => (
-          <ProductCard key={producto.id} producto={producto} />
-        ))}
-      </div>
+      {!loading && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 px-4 mt-6">
+          {productosPagina.map((producto) => (
+            <ProductCard key={producto.id} producto={producto} />
+          ))}
+        </div>
+      )}
 
       {!loading && productosFiltrados.length === 0 && (
         <p className="px-4 mt-6 text-sm text-muted font-mono">
