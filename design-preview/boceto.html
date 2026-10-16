@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Boceto · ShadowEZ — Glass minimalista</title>
+<style>
+/* ============================================================
+   TOKENS PROPUESTOS (espejo de lo que iría en globals.css)
+   ============================================================ */
+:root {
+  /* --- Color base --- */
+  --color-background: #f4f6fb;   /* antes #fafaf9 (cálido) -> frío con tinte azul para que el cristal lea */
+  --color-ink: #14161a;
+  --color-muted: #6b7280;
+  --color-accent: #2f6fed;
+  --color-accent-ink: #1f4fbd;
+  --color-danger: #dc2626;
+
+  /* --- Superficie / cristal --- */
+  --surface-solid: #ffffff;
+  --glass-bg: rgba(255, 255, 255, 0.62);
+  --glass-bg-strong: rgba(255, 255, 255, 0.80);
+  --glass-bg-soft: rgba(255, 255, 255, 0.42);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  --hairline: rgba(20, 22, 26, 0.08);
+  --hairline-strong: rgba(20, 22, 26, 0.16);
+  --glass-blur: 16px;
+  --glass-sat: 145%;
+
+  /* --- Radios --- */
+  --radius-xs: 8px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-2xl: 30px;
+  --radius-pill: 999px;
+
+  /* --- Sombras --- */
+  --shadow-xs: 0 1px 2px rgba(20, 22, 26, 0.05);
+  --shadow-sm: 0 2px 8px rgba(20, 22, 26, 0.06), 0 1px 2px rgba(20, 22, 26, 0.04);
+  --shadow-md: 0 8px 24px rgba(20, 22, 26, 0.08), 0 2px 6px rgba(20, 22, 26, 0.05);
+  --shadow-lg: 0 18px 48px rgba(20, 22, 26, 0.12), 0 4px 12px rgba(20, 22, 26, 0.06);
+  --shadow-accent: 0 8px 24px rgba(47, 111, 237, 0.28);
+
+  /* --- Movimiento --- */
+  --dur-fast: 140ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.5, 1);
+
+  --ring: 0 0 0 2px var(--color-background), 0 0 0 4px rgba(47, 111, 237, 0.55);
+
+  /* --- Tipografía (los archivos reales usan next/font; aquí fallback offline) --- */
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", "Consolas", monospace;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--color-ink);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  background:
+    radial-gradient(58rem 40rem at 8% -10%, rgba(47, 111, 237, 0.16), transparent 60%),
+    radial-gradient(46rem 32rem at 112% 4%, rgba(124, 92, 240, 0.14), transparent 55%),
+    radial-gradient(50rem 46rem at 50% 118%, rgba(47, 111, 237, 0.10), transparent 60%),
+    var(--color-background);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+/* Grano sutil opcional (baja opacidad, no bloquea clics) */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   PRIMITIVAS REUTILIZABLES
+   ============================================================ */
+.glass {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-sm);
+}
+.glass-strong {
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(22px) saturate(var(--glass-sat));
+  backdrop-filter: blur(22px) saturate(var(--glass-sat));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-md);
+}
+
+.label-mono {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.label-accent { color: var(--color-accent); }
+
+/* Botón base -------------------------------------------------- */
+.btn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  padding: 10px 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    background-color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out);
+}
+.btn:focus-visible { outline: none; box-shadow: var(--ring); }
+
+.btn-primary {
+  background: var(--color-ink);
+  color: #fff;
+  box-shadow: var(--shadow-xs);
+}
+.btn-primary:hover {
+  background: #1d2027;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+.btn-primary:active { transform: translateY(0) scale(0.98); box-shadow: var(--shadow-xs); }
+
+.btn-accent {
+  background: var(--color-accent);
+  color: #fff;
+  box-shadow: var(--shadow-accent);
+}
+.btn-accent:hover { background: var(--color-accent-ink); transform: translateY(-1px); }
+.btn-accent:active { transform: translateY(0) scale(0.98); }
+
+.btn-ghost {
+  background: var(--glass-bg-soft);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-color: var(--hairline);
+  color: var(--color-ink);
+}
+.btn-ghost:hover { border-color: var(--hairline-strong); background: var(--glass-bg); transform: translateY(-1px); }
+.btn-ghost:active { transform: translateY(0) scale(0.98); }
+
+.btn:disabled, .btn[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: var(--shadow-xs) !important;
+}
+
+/* Píldora de filtro ------------------------------------------ */
+.pill {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 7px 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--hairline);
+  background: var(--glass-bg-soft);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: var(--color-muted);
+  cursor: pointer;
+  transition:
+    color var(--dur-base) var(--ease-out),
+    background-color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+.pill:hover { color: var(--color-ink); border-color: var(--hairline-strong); transform: translateY(-1px); }
+.pill:active { transform: translateY(0) scale(0.97); }
+.pill:focus-visible { outline: none; box-shadow: var(--ring); }
+.pill.active {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Badges ------------------------------------------------------ */
+.badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--hairline);
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: var(--color-ink);
+}
+.badge-accent { color: var(--color-accent); border-color: rgba(47, 111, 237, 0.28); background: rgba(47, 111, 237, 0.10); }
+.badge-muted { color: var(--color-muted); }
+
+/* Inputs ------------------------------------------------------ */
+.field {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--hairline);
+  background: var(--glass-bg-soft);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: var(--color-ink);
+  transition: border-color var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out);
+}
+.field::placeholder { color: var(--color-muted); }
+.field:hover { border-color: var(--hairline-strong); background: var(--glass-bg); }
+.field:focus { outline: none; border-color: var(--color-accent); background: var(--glass-bg-strong); box-shadow: 0 0 0 4px rgba(47, 111, 237, 0.14); }
+.field.is-error { border-color: rgba(220, 38, 38, 0.55); box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.10); }
+
+/* Tarjeta ----------------------------------------------------- */
+.card {
+  border-radius: var(--radius-lg);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+}
+.card-interactive:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: rgba(255, 255, 255, 0.9); }
+.card-interactive:active { transform: translateY(-1px) scale(0.995); }
+a.card-interactive:focus-visible { outline: none; box-shadow: var(--ring); }
+
+/* Placeholder de imagen (sustituye a next/image en el boceto) */
+.thumb {
+  border-radius: var(--radius-md);
+  background:
+    radial-gradient(120% 120% at 30% 20%, #ffffff 0%, #eef2fb 45%, #dfe7f7 100%);
+  border: 1px solid var(--hairline);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.thumb::after {
+  content: "";
+  width: 34%;
+  height: 34%;
+  border-radius: 30% 30% 42% 42%;
+  background: linear-gradient(135deg, rgba(47, 111, 237, 0.35), rgba(124, 92, 240, 0.35));
+  filter: blur(0.2px);
+}
+.thumb-g2::after { background: linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(47, 111, 237, 0.32)); border-radius: 50%; }
+.thumb-g3::after { background: linear-gradient(135deg, rgba(245, 158, 11, 0.32), rgba(220, 38, 38, 0.28)); border-radius: 24%; }
+.thumb-g4::after { background: linear-gradient(135deg, rgba(124, 92, 240, 0.35), rgba(47, 111, 237, 0.3)); border-radius: 50%; }
+.thumb-avatar::after { display: none; }
+
+/* ============================================================
+   LAYOUT DEL DOCUMENTO DE BOCETO
+   ============================================================ */
+.doc { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding: 40px 20px 96px; }
+
+.doc-head { margin-bottom: 36px; }
+.doc-head h1 { font-family: var(--font-display); font-size: clamp(1.6rem, 4vw, 2.4rem); margin: 6px 0 8px; letter-spacing: -0.02em; }
+.doc-head p { color: var(--color-muted); margin: 0; max-width: 62ch; }
+
+.legend {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px;
+}
+.swatch {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 12px; border-radius: var(--radius-pill);
+  background: var(--glass-bg); border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-xs);
+  font-family: var(--font-mono); font-size: 11px; color: var(--color-ink);
+}
+.swatch i { width: 16px; height: 16px; border-radius: 50%; border: 1px solid var(--hairline); display: inline-block; }
+
+.section {
+  margin-top: 56px;
+}
+.section-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 20px; }
+.section-head .idx {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--color-accent); border: 1px solid rgba(47, 111, 237, 0.3); background: rgba(47, 111, 237, 0.08);
+  padding: 4px 10px; border-radius: var(--radius-pill);
+}
+.section-head h2 { font-family: var(--font-display); font-size: 1.35rem; margin: 0; letter-spacing: -0.01em; }
+.section-head p { color: var(--color-muted); font-size: 13px; margin: 0; flex-basis: 100%; }
+
+/* "Lienzo" que simula la ventana del navegador */
+.canvas {
+  border-radius: var(--radius-2xl);
+  padding: 26px 18px;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.28);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  box-shadow: var(--shadow-sm);
+}
+.canvas-wide { padding: 26px 22px; }
+
+/* Columna estrecha réplica de la home real (max-w-2xl) */
+.narrow { max-width: 672px; margin: 0 auto; }
+
+/* ============================================================
+   SECCIÓN (a) HOME PÚBLICA
+   ============================================================ */
+.hero { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 26px 16px 18px; }
+.avatar {
+  width: 104px; height: 104px; border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, rgba(47, 111, 237, 0.55), rgba(124, 92, 240, 0.5));
+  box-shadow: var(--shadow-md);
+}
+.avatar .thumb {
+  width: 100%; height: 100%; border-radius: 50%;
+  background: radial-gradient(90% 90% at 35% 25%, #ffffff, #e7ecf7);
+  border: 2px solid rgba(255,255,255,0.9);
+}
+.avatar .thumb::after { width: 44%; height: 44%; border-radius: 50%; background: linear-gradient(135deg, rgba(47,111,237,.5), rgba(124,92,240,.45)); }
+.hero h1 { font-family: var(--font-display); font-size: 1.5rem; margin: 14px 0 2px; }
+.hero .mail { color: var(--color-muted); text-decoration: none; font-size: 14px; transition: color var(--dur-base) var(--ease-out); }
+.hero .mail:hover { color: var(--color-ink); }
+.socials { display: flex; gap: 14px; margin-top: 16px; }
+.social {
+  width: 46px; height: 46px; border-radius: var(--radius-pill);
+  display: flex; align-items: center; justify-content: center;
+  background: var(--glass-bg); border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-xs); color: #3a3f47; text-decoration: none;
+  transition: transform var(--dur-base) var(--ease-spring), box-shadow var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out);
+}
+.social svg { width: 20px; height: 20px; }
+.social:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); color: var(--color-accent); background: var(--glass-bg-strong); }
+.social:active { transform: translateY(0) scale(0.95); }
+.social:focus-visible { outline: none; box-shadow: var(--ring); }
+
+/* Sponsor banner */
+.sponsor {
+  display: flex; align-items: stretch; margin: 18px 0; text-decoration: none; color: inherit;
+  border-radius: var(--radius-lg); overflow: hidden;
+}
+.sponsor .stripe { width: 5px; background: linear-gradient(180deg, var(--color-accent), #7c5cf0); flex: 0 0 5px; }
+.sponsor .body { display: flex; align-items: center; gap: 14px; padding: 14px; flex: 1 1 auto; min-width: 0; }
+.sponsor .logo { width: 52px; height: 52px; flex: 0 0 52px; border-radius: var(--radius-md); }
+.sponsor .logo::after { width: 42%; height: 42%; border-radius: 50%; }
+.sponsor:hover { box-shadow: var(--shadow-lg); border-color: rgba(255,255,255,0.95); transform: translateY(-3px); }
+.sponsor:active { transform: translateY(-1px); }
+.sponsor:focus-visible { outline: none; box-shadow: var(--ring); }
+.sponsor .brand { font-weight: 600; font-size: 14px; margin: 2px 0 0; }
+.sponsor .desc { font-size: 12px; color: var(--color-muted); margin: 1px 0 0; }
+
+/* Carrusel */
+.filters { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 10px; }
+.filters::-webkit-scrollbar { height: 6px; }
+.filters::-webkit-scrollbar-track { background: rgba(20,22,26,.05); border-radius: 999px; }
+.filters::-webkit-scrollbar-thumb { background: rgba(20,22,26,.22); border-radius: 999px; }
+.carousel-wrap { position: relative; margin-top: 6px; }
+.carousel { display: flex; gap: 14px; overflow-x: auto; padding: 6px 4px 14px; scroll-snap-type: x proximity; }
+.carousel::-webkit-scrollbar { height: 6px; }
+.carousel::-webkit-scrollbar-thumb { background: rgba(20,22,26,.18); border-radius: 999px; }
+.carousel .slide { flex: 0 0 200px; scroll-snap-align: start; }
+.fade-right {
+  pointer-events: none; position: absolute; top: 0; right: 0; height: 100%; width: 56px;
+  background: linear-gradient(to left, var(--color-background), rgba(244, 246, 251, 0));
+}
+
+/* Tarjeta de producto */
+.pcard { display: block; text-decoration: none; color: inherit; }
+.pcard .pic { position: relative; aspect-ratio: 1 / 1; border-radius: var(--radius-lg); }
+.pcard .pic::after { width: 40%; height: 40%; }
+.pcard .cat {
+  position: absolute; top: 10px; left: 10px;
+}
+.pcard h3 { font-size: 14px; font-weight: 500; line-height: 1.35; margin: 10px 2px 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.pcard .meta { font-size: 11px; color: var(--color-muted); margin: 6px 2px 0; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.more-card {
+  flex: 0 0 200px; aspect-ratio: auto; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+  border-radius: var(--radius-lg); text-decoration: none; color: var(--color-ink); padding: 20px;
+  min-height: 240px;
+}
+.more-card .stack { position: relative; width: 64px; height: 64px; }
+.more-card .stack .thumb { position: absolute; inset: 0; border-radius: 50%; }
+.more-card .stack .thumb::after { width: 50%; height: 50%; border-radius: 50%; }
+.more-card:hover { border-color: rgba(255,255,255,.95); box-shadow: var(--shadow-lg); transform: translateY(-4px); }
+
+/* Video */
+.video-label { display: block; margin-bottom: 8px; }
+.video {
+  position: relative; aspect-ratio: 16 / 9; width: 100%; border-radius: var(--radius-lg); overflow: hidden;
+  background: linear-gradient(135deg, #1b1e24, #2b3038);
+  border: 1px solid var(--glass-border); box-shadow: var(--shadow-md);
+  cursor: pointer;
+}
+.video .play {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(60% 80% at 50% 50%, rgba(0,0,0,.25), rgba(0,0,0,.45));
+  transition: background-color var(--dur-base) var(--ease-out);
+}
+.video .play .circle {
+  width: 62px; height: 62px; border-radius: 50%;
+  background: rgba(255,255,255,0.92); color: #14161a;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--dur-base) var(--ease-spring);
+}
+.video:hover .circle { transform: scale(1.08); }
+.video:active .circle { transform: scale(0.98); }
+.video .circle svg { width: 22px; height: 22px; margin-left: 3px; }
+
+/* ============================================================
+   SECCIÓN (b) /productos
+   ============================================================ */
+.back {
+  display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+  color: var(--color-muted); transition: color var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+}
+.back:hover { color: var(--color-ink); transform: translateX(-3px); }
+.back:focus-visible { outline: none; box-shadow: var(--ring); border-radius: var(--radius-sm); }
+.page-title { font-family: var(--font-display); font-size: 1.6rem; margin: 12px 0 0; letter-spacing: -0.01em; }
+
+.search { position: relative; margin-top: 16px; }
+.search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--color-muted); width: 16px; height: 16px; }
+.search .field { padding-left: 38px; }
+
+.grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px; margin-top: 22px; }
+@media (max-width: 900px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* Paginación */
+.pagination { display: flex; align-items: center; justify-content: center; gap: 20px; margin-top: 34px; }
+.pg-btn {
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
+  background: none; border: none; cursor: pointer; color: var(--color-ink); padding: 6px 4px;
+  border-radius: var(--radius-sm);
+  transition: color var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out);
+}
+.pg-btn:hover:not(:disabled) { color: var(--color-accent); }
+.pg-btn:disabled { color: var(--color-muted); cursor: not-allowed; opacity: 0.55; }
+.pg-btn:focus-visible { outline: none; box-shadow: var(--ring); }
+.pg-count { font-family: var(--font-mono); font-size: 12px; color: var(--color-muted); }
+
+/* Empty state */
+.empty { margin-top: 26px; font-family: var(--font-mono); font-size: 13px; color: var(--color-muted); }
+
+/* ============================================================
+   SECCIÓN (c) ADMIN DASHBOARD
+   ============================================================ */
+.admin-shell { border-radius: var(--radius-2xl); overflow: hidden; }
+.admin-header { padding: 16px 18px 0; }
+.admin-top { display: flex; align-items: center; justify-content: space-between; padding-bottom: 14px; }
+.admin-brand { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+.admin-nav { display: flex; gap: 8px; padding-bottom: 14px; border-bottom: 1px solid var(--hairline); flex-wrap: wrap; }
+.nav-link {
+  position: relative; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  text-decoration: none; color: var(--color-muted); padding: 8px 14px; border-radius: var(--radius-pill);
+  transition: color var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+.nav-link:hover { color: var(--color-ink); background: var(--glass-bg); transform: translateY(-1px); }
+.nav-link:focus-visible { outline: none; box-shadow: var(--ring); }
+.nav-link.active { color: #fff; background: var(--color-ink); box-shadow: var(--shadow-sm); }
+.admin-main { padding: 20px 18px 24px; }
+
+.row-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.row-head h2 { font-family: var(--font-display); font-size: 1.4rem; margin: 0; }
+
+.rows { display: flex; flex-direction: column; gap: 12px; }
+.arow {
+  display: flex; align-items: center; gap: 14px; padding: 12px 14px;
+  border-radius: var(--radius-lg); background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border); box-shadow: var(--shadow-xs);
+  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+}
+.arow:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: rgba(255,255,255,0.92); }
+.arow .thumb { width: 52px; height: 52px; flex: 0 0 52px; }
+.arow .thumb::after { width: 42%; height: 42%; }
+.arow .info { flex: 1 1 auto; min-width: 0; }
+.arow .info .name { font-size: 14px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.arow .info .cat { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; color: var(--color-muted); letter-spacing: 0.08em; }
+
+.icon-btn {
+  width: 38px; height: 38px; border-radius: var(--radius-md);
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid transparent; background: transparent; color: var(--color-muted); cursor: pointer;
+  transition: color var(--dur-base) var(--ease-out), background-color var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+.icon-btn svg { width: 16px; height: 16px; }
+.icon-btn:hover { color: var(--color-ink); background: var(--glass-bg); border-color: var(--hairline); transform: translateY(-1px); }
+.icon-btn:active { transform: translateY(0) scale(0.94); }
+.icon-btn:focus-visible { outline: none; box-shadow: var(--ring); }
+.icon-btn.danger:hover { color: var(--color-danger); background: rgba(220, 38, 38, 0.08); border-color: rgba(220, 38, 38, 0.2); }
+
+/* Fila para demostrar estados on-hover/active de forma forzada */
+.states { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 24px; padding: 16px; border-radius: var(--radius-lg); background: var(--glass-bg-soft); border: 1px dashed var(--hairline-strong); }
+.states .tagname { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--color-muted); margin-right: 2px; }
+.force-hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: rgba(255,255,255,0.92); }
+.force-hover .icon-btn { color: var(--color-ink); }
+.force-focus { outline: none; box-shadow: var(--ring); }
+
+/* ============================================================
+   SECCIÓN (d) FORM + LOGIN
+   ============================================================ */
+.form-wrap { max-width: 460px; }
+.form { display: flex; flex-direction: column; gap: 18px; }
+.fgroup label { display: block; font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--color-muted); margin-bottom: 7px; }
+.ferror { font-family: var(--font-mono); font-size: 11px; color: var(--color-danger); margin: 6px 0 0; }
+.file {
+  width: 100%; font-family: var(--font-body); font-size: 13px; color: var(--color-ink);
+}
+.file::file-selector-button {
+  font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+  margin-right: 12px; padding: 9px 14px; cursor: pointer; color: var(--color-ink);
+  background: var(--glass-bg-strong); border: 1px solid var(--hairline); border-radius: var(--radius-pill);
+  transition: background-color var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+.file::file-selector-button:hover { border-color: var(--hairline-strong); transform: translateY(-1px); }
+
+.form-msg { font-family: var(--font-mono); font-size: 11px; color: var(--color-accent); }
+
+/* Login card */
+.login-canvas { display: flex; justify-content: center; }
+.login-card { width: 100%; max-width: 380px; padding: 26px 24px; border-radius: var(--radius-xl); }
+.login-card h2 { font-family: var(--font-display); font-size: 1.25rem; margin: 6px 0 22px; }
+
+.stack-note { font-family: var(--font-mono); font-size: 11px; color: var(--color-muted); margin: 12px 0 0; }
+
+/* ============================================================
+   SECCIÓN (e) MÓVIL
+   ============================================================ */
+.mobile-row { display: flex; gap: 28px; flex-wrap: wrap; }
+.phone {
+  width: 390px; max-width: 100%; border-radius: 44px; padding: 12px;
+  background: linear-gradient(160deg, #23262d, #14161a);
+  box-shadow: var(--shadow-lg);
+}
+.phone .screen {
+  border-radius: 33px; overflow: hidden; height: 720px; overflow-y: auto;
+  background:
+    radial-gradient(30rem 22rem at 10% -6%, rgba(47,111,237,.16), transparent 60%),
+    radial-gradient(26rem 20rem at 108% 4%, rgba(124,92,240,.14), transparent 55%),
+    var(--color-background);
+  -webkit-overflow-scrolling: touch;
+}
+.phone .screen::-webkit-scrollbar { width: 0; }
+.phone-cap { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-muted); margin: 0 0 10px 4px; }
+.m-pad { padding: 14px; }
+
+/* Nota de accesibilidad / motion */
+.a11y {
+  margin-top: 20px; font-size: 13px; color: var(--color-muted); line-height: 1.6;
+  border-left: 3px solid rgba(47,111,237,.4); padding: 4px 0 4px 14px;
+}
+code { font-family: var(--font-mono); font-size: 12px; background: rgba(20,22,26,.06); padding: 1px 5px; border-radius: 6px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 1ms !important; animation-duration: 1ms !important; }
+  .card-interactive:hover, .arow:hover, .social:hover, .sponsor:hover { transform: none; }
+}
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <!-- ================= PORTADA / LEYENDA ================= -->
+  <header class="doc-head">
+    <span class="label-mono label-accent">Boceto · propuesta visual</span>
+    <h1>ShadowEZ — Glass minimalista</h1>
+    <p>Mockup de solo lectura para aprobar el rediseño (glassmorphism, esquinas redondeadas, transiciones suaves). No modifica ninguna pantalla real. Pasa el cursor por botones, tarjetas, filas, filtros y enlaces para ver los estados en vivo.</p>
+    <div class="legend">
+      <span class="swatch"><i style="background:#f4f6fb"></i> background</span>
+      <span class="swatch"><i style="background:rgba(255,255,255,.62)"></i> glass</span>
+      <span class="swatch"><i style="background:#14161a"></i> ink</span>
+      <span class="swatch"><i style="background:#6b7280"></i> muted</span>
+      <span class="swatch"><i style="background:#2f6fed"></i> accent</span>
+      <span class="swatch"><i style="background:rgba(20,22,26,.08)"></i> hairline</span>
+      <span class="swatch">radius: 8 · 14 · 24 · pill</span>
+      <span class="swatch">motion: 140 · 200 · 320ms · ease-out</span>
+    </div>
+  </header>
+
+  <!-- ================= (a) HOME PÚBLICA ================= -->
+  <section class="section">
+    <div class="section-head">
+      <span class="idx">a</span>
+      <h2>Home pública</h2>
+      <p>Columna estrecha (max-w-2xl): Hero → banner patrocinado → filtros + carrusel → último video.</p>
+    </div>
+    <div class="canvas">
+      <div class="narrow">
+
+        <!-- HERO -->
+        <section class="hero">
+          <div class="avatar"><div class="thumb thumb-avatar"></div></div>
+          <h1>ShadowEZ</h1>
+          <a class="mail" href="#">📧 contacto@shadowez.com</a>
+          <div class="socials">
+            <a class="social" href="#" aria-label="YouTube">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg>
+            </a>
+            <a class="social" href="#" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+            </a>
+            <a class="social" href="#" aria-label="TikTok">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 3c.4 2.5 1.9 4 4.5 4.2v3c-1.7 0-3.2-.5-4.5-1.4v6.3c0 3.6-2.6 6-6 5.8-3-.2-5.2-2.7-5-5.7.2-2.9 2.8-5 5.6-4.7v3.2c-1.4-.4-2.6.6-2.6 1.9 0 1.2 1 2.1 2.2 2.1 1.4 0 2.3-1 2.3-2.6V3h3.5z"/></svg>
+            </a>
+            <a class="social" href="#" aria-label="Facebook">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 8.5V7c0-.8.2-1.2 1.3-1.2H17V3h-2.6C11.7 3 11 4.4 11 6.6V8.5H9V12h2v9h3v-9h2.3l.4-3.5H14z"/></svg>
+            </a>
+          </div>
+        </section>
+
+        <!-- SPONSOR BANNER -->
+        <a class="sponsor glass card-interactive" href="#">
+          <div class="stripe"></div>
+          <div class="body">
+            <div class="logo thumb"></div>
+            <div style="flex:1 1 auto; min-width:0;">
+              <span class="label-mono label-accent">[ Patrocinado ]</span>
+              <p class="brand">TechNova Store</p>
+              <p class="desc">Periféricos y accesorios gamer con envío a todo el país</p>
+            </div>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--color-muted); flex:0 0 auto;"><path d="M8 5l7 7-7 7"/></svg>
+          </div>
+        </a>
+
+        <!-- FILTROS + CARRUSEL -->
+        <section style="padding-top:8px;">
+          <div class="filters">
+            <button class="pill active">[ todos ]</button>
+            <button class="pill">[ mouses ]</button>
+            <button class="pill">[ audifonos ]</button>
+            <button class="pill">[ teclados ]</button>
+            <button class="pill">[ monitores ]</button>
+          </div>
+
+          <div class="carousel-wrap">
+            <div class="carousel">
+              <div class="slide">
+                <a class="pcard" href="#">
+                  <div class="pic thumb"><span class="badge cat">mouses</span></div>
+                  <h3>Mouse gamer inalámbrico RGB</h3>
+                  <p class="meta">Ver producto</p>
+                </a>
+              </div>
+              <div class="slide">
+                <a class="pcard" href="#">
+                  <div class="pic thumb thumb-g2"><span class="badge cat">audifonos</span></div>
+                  <h3>Audífonos con cancelación de ruido</h3>
+                  <p class="meta">Sonido envolvente y batería de larga duración</p>
+                </a>
+              </div>
+              <div class="slide">
+                <a class="pcard" href="#">
+                  <div class="pic thumb thumb-g3"><span class="badge cat">teclados</span></div>
+                  <h3>Teclado mecánico 60%</h3>
+                  <p class="meta">Ver producto</p>
+                </a>
+              </div>
+              <div class="slide">
+                <a class="pcard" href="#">
+                  <div class="pic thumb thumb-g4"><span class="badge cat">monitores</span></div>
+                  <h3>Monitor 27&quot; 165Hz</h3>
+                  <p class="meta">Panel IPS ideal para setup de trabajo y juego</p>
+                </a>
+              </div>
+              <div class="slide">
+                <a class="pcard" href="#">
+                  <div class="pic thumb"><span class="badge cat">mouses</span></div>
+                  <h3>Mousepad extendido XL</h3>
+                  <p class="meta">Ver producto</p>
+                </a>
+              </div>
+              <a class="more-card card card-interactive" href="#">
+                <div class="stack">
+                  <div class="thumb" style="transform:translateX(8px); opacity:.9;"></div>
+                  <div class="thumb thumb-g4" style="transform:translateX(3px); opacity:.95;"></div>
+                  <div class="thumb thumb-g2"></div>
+                </div>
+                <span class="label-mono" style="color:var(--color-ink);">+12 más</span>
+              </a>
+            </div>
+            <div class="fade-right"></div>
+          </div>
+        </section>
+
+        <!-- ÚLTIMO VIDEO -->
+        <section style="padding-top:8px;">
+          <span class="label-mono video-label">[ Último video ]</span>
+          <div class="video">
+            <div class="play">
+              <div class="circle">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+    <p class="a11y">Los filtros y el carrusel conservan el modelo de interacción actual (Embla con <code>dragFree</code>): aquí se muestran como scroll horizontal para que el gesto en móvil sea el mismo de un dedo.</p>
+  </section>
+
+  <!-- ================= (b) /productos ================= -->
+  <section class="section">
+    <div class="section-head">
+      <span class="idx">b</span>
+      <h2>/productos</h2>
+      <p>Volver · título · buscador · filtros · grilla 2/3/5 columnas · paginación.</p>
+    </div>
+    <div class="canvas canvas-wide">
+      <a class="back label-mono" href="#">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>
+        Volver
+      </a>
+      <h2 class="page-title">Todos los productos</h2>
+
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input class="field" type="text" placeholder="Buscar producto..." />
+      </div>
+
+      <div class="filters" style="margin-top:16px;">
+        <button class="pill">[ todos ]</button>
+        <button class="pill active">[ mouses ]</button>
+        <button class="pill">[ audifonos ]</button>
+        <button class="pill">[ teclados ]</button>
+        <button class="pill">[ monitores ]</button>
+      </div>
+
+      <div class="grid">
+        <a class="pcard" href="#"><div class="pic thumb"><span class="badge cat">mouses</span></div><h3>Mouse gamer inalámbrico RGB</h3><p class="meta">Ver producto</p></a>
+        <a class="pcard" href="#"><div class="pic thumb thumb-g2"><span class="badge cat">audifonos</span></div><h3>Audífonos con cancelación de ruido</h3><p class="meta">Ver producto</p></a>
+        <a class="pcard" href="#"><div class="pic thumb thumb-g3"><span class="badge cat">teclados</span></div><h3>Teclado mecánico 60%</h3><p class="meta">Ver producto</p></a>
+        <a class="pcard" href="#"><div class="pic thumb thumb-g4"><span class="badge cat">monitores</span></div><h3>Monitor 27&quot; 165Hz</h3><p class="meta">Ver producto</p></a>
+        <a class="pcard" href="#"><div class="pic thumb"><span class="badge cat">mouses</span></div><h3>Mousepad extendido XL</h3><p class="meta">Ver producto</p></a>
+        <a class="pcard" href="#"><div class="pic thumb thumb-g3"><span class="badge cat">teclados</span></div><h3>Teclado inalámbrico compacto</h3><p class="meta">Ver producto</p></a>
+        <a class="pcard" href="#"><div class="pic thumb thumb-g2"><span class="badge cat">audifonos</span></div><h3>Audífonos inalámbricos deportivos</h3><p class="meta">Ver producto</p></a>
+        <a class="pcard" href="#"><div class="pic thumb thumb-g4"><span class="badge cat">monitores</span></div><h3>Monitor curvo 32&quot;</h3><p class="meta">Ver producto</p></a>
+        <a class="pcard" href="#"><div class="pic thumb"><span class="badge cat">mouses</span></div><h3>Base de carga para mouse</h3><p class="meta">Ver producto</p></a>
+        <a class="pcard" href="#"><div class="pic thumb thumb-g3"><span class="badge cat">teclados</span></div><h3>Kit de teclas personalizadas</h3><p class="meta">Ver producto</p></a>
+      </div>
+
+      <div class="pagination">
+        <button class="pg-btn" disabled>Anterior</button>
+        <span class="pg-count">1 / 3</span>
+        <button class="pg-btn">Siguiente</button>
+      </div>
+
+      <p class="empty">Ejemplo de estado vacío: «Sin resultados para "mouse gamer"»</p>
+    </div>
+  </section>
+
+  <!-- ================= (c) ADMIN DASHBOARD ================= -->
+  <section class="section">
+    <div class="section-head">
+      <span class="idx">c</span>
+      <h2>Admin · productos</h2>
+      <p>Nav con estado activo, filas de tabla, badges y botones. Debajo, fila con estados forzados (hover / focus / disabled).</p>
+    </div>
+    <div class="canvas canvas-wide">
+      <div class="glass admin-shell">
+        <div class="admin-header">
+          <div class="admin-top">
+            <span class="admin-brand">[ Panel Admin ]</span>
+            <button class="pg-btn" style="padding:8px 10px;">Salir</button>
+          </div>
+          <nav class="admin-nav">
+            <a class="nav-link active" href="#">Productos</a>
+            <a class="nav-link" href="#">Sponsors</a>
+            <a class="nav-link" href="#">Video</a>
+          </nav>
+        </div>
+        <div class="admin-main">
+          <div class="row-head">
+            <h2>Productos</h2>
+            <a class="btn btn-primary" href="#">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+              Nuevo
+            </a>
+          </div>
+
+          <div class="rows">
+            <div class="arow">
+              <div class="thumb"></div>
+              <div class="info">
+                <p class="name">Mouse gamer inalámbrico RGB</p>
+                <span class="cat">mouses</span>
+              </div>
+              <button class="icon-btn" aria-label="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+              <button class="icon-btn danger" aria-label="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+            </div>
+            <div class="arow">
+              <div class="thumb thumb-g2"></div>
+              <div class="info">
+                <p class="name">Audífonos con cancelación de ruido</p>
+                <span class="cat">audifonos</span>
+              </div>
+              <button class="icon-btn" aria-label="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+              <button class="icon-btn danger" aria-label="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+            </div>
+            <div class="arow">
+              <div class="thumb thumb-g3"></div>
+              <div class="info">
+                <p class="name">Teclado mecánico 60%</p>
+                <span class="cat">teclados</span>
+              </div>
+              <button class="icon-btn" aria-label="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+              <button class="icon-btn danger" aria-label="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+            </div>
+          </div>
+
+          <p class="label-mono" style="margin-top:18px;">[ Variante sponsors ] · badge Activo / Inactivo</p>
+          <div class="rows" style="margin-top:10px;">
+            <div class="arow">
+              <div class="thumb"></div>
+              <div class="info">
+                <p class="name">TechNova Store</p>
+                <span class="badge badge-accent" style="margin-top:4px;">Activo</span>
+              </div>
+              <button class="icon-btn" aria-label="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+              <button class="icon-btn danger" aria-label="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+            </div>
+            <div class="arow">
+              <div class="thumb thumb-g4"></div>
+              <div class="info">
+                <p class="name">Pixel Gear</p>
+                <span class="badge badge-muted" style="margin-top:4px;">Inactivo</span>
+              </div>
+              <button class="icon-btn" aria-label="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+              <button class="icon-btn danger" aria-label="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+            </div>
+          </div>
+
+          <div class="states">
+            <span class="tagname">Estados forzados:</span>
+            <div class="arow force-hover" style="padding:8px 12px;">
+              <div class="thumb" style="width:36px;height:36px;flex:0 0 36px;"></div>
+              <div class="info"><p class="name" style="font-size:13px;">Fila en hover</p></div>
+              <button class="icon-btn" aria-label="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+            </div>
+            <button class="btn btn-primary force-focus">Focus visible</button>
+            <button class="btn btn-primary" disabled>Deshabilitado</button>
+            <button class="btn btn-accent">Accent</button>
+            <button class="btn btn-ghost">Ghost</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="a11y">El nav activo usa fondo <code>ink</code> + texto blanco (mismo patrón que la píldora de categoría activa), así el estado actual es inequívoco sin depender de subrayados. La fila conserva el <code>confirm()</code> nativo al borrar: aquí solo se estiliza el botón.</p>
+  </section>
+
+  <!-- ================= (d) FORM + LOGIN ================= -->
+  <section class="section">
+    <div class="section-head">
+      <span class="idx">d</span>
+      <h2>Admin · formulario y login</h2>
+      <p>Campos con label mono, estados de error/deshabilitado y tarjeta de login centrada.</p>
+    </div>
+    <div class="canvas canvas-wide" style="display:flex; gap:34px; flex-wrap:wrap; align-items:flex-start;">
+
+      <!-- Formulario tipo ProductoForm -->
+      <div class="form-wrap" style="flex:1 1 360px;">
+        <h2 class="page-title" style="font-size:1.25rem; margin-bottom:18px;">Nuevo producto</h2>
+        <form class="form" onsubmit="return false;">
+          <div class="fgroup">
+            <label>Nombre</label>
+            <input class="field" type="text" placeholder="ej: mouse gamer" />
+          </div>
+          <div class="fgroup">
+            <label>Descripción</label>
+            <input class="field" type="text" />
+          </div>
+          <div class="fgroup">
+            <label>Categoría</label>
+            <input class="field is-error" type="text" placeholder="ej: mouses, audifonos" value="" />
+            <p class="ferror">La categoría es obligatoria</p>
+          </div>
+          <div class="fgroup">
+            <label>Link de compra</label>
+            <input class="field" type="url" placeholder="https://..." />
+          </div>
+          <div class="fgroup">
+            <label>Imagen</label>
+            <div class="thumb" style="width:80px;height:80px;margin-bottom:10px;"></div>
+            <input class="file" type="file" />
+          </div>
+          <div class="fgroup">
+            <label>Fecha inicio · Fecha fin (variante sponsor)</label>
+            <input class="field" type="datetime-local" />
+            <input class="field" type="datetime-local" style="margin-top:10px;" />
+          </div>
+
+          <p class="form-msg">✔ Guardado correctamente</p>
+
+          <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <button class="btn btn-primary" type="submit">Guardar cambios</button>
+            <button class="btn btn-primary" type="button" disabled>Guardando...</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Login -->
+      <div class="login-canvas" style="flex:1 1 320px;">
+        <form class="login-card glass-strong" onsubmit="return false;">
+          <span class="label-mono">[ Admin ]</span>
+          <h2>Iniciar sesión</h2>
+          <div class="fgroup" style="margin-bottom:16px;">
+            <label>Correo</label>
+            <input class="field" type="email" />
+          </div>
+          <div class="fgroup" style="margin-bottom:16px;">
+            <label>Contraseña</label>
+            <input class="field" type="password" />
+          </div>
+          <p class="ferror" style="margin-bottom:16px;">Correo o contraseña incorrectos</p>
+          <button class="btn btn-primary" type="submit" style="width:100%; justify-content:center;">Ingresar</button>
+        </form>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= (e) MÓVIL ================= -->
+  <section class="section">
+    <div class="section-head">
+      <span class="idx">e</span>
+      <h2>Vista móvil</h2>
+      <p>Home y Admin en ancho de teléfono (390px). El cristal se apoya en el degradado de fondo para seguir leyéndose.</p>
+    </div>
+    <div class="mobile-row">
+
+      <!-- HOME MÓVIL -->
+      <div>
+        <p class="phone-cap">Home · público</p>
+        <div class="phone">
+          <div class="screen">
+            <div class="hero" style="padding-top:22px;">
+              <div class="avatar" style="width:88px;height:88px;"><div class="thumb thumb-avatar"></div></div>
+              <h1 style="font-size:1.35rem;">ShadowEZ</h1>
+              <a class="mail" href="#">📧 contacto@shadowez.com</a>
+              <div class="socials" style="gap:12px;">
+                <a class="social" href="#" aria-label="YouTube" style="width:42px;height:42px;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.6 15.6V8.4l6.3 3.6-6.3 3.6z"/></svg></a>
+                <a class="social" href="#" aria-label="Instagram" style="width:42px;height:42px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></a>
+                <a class="social" href="#" aria-label="TikTok" style="width:42px;height:42px;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 3c.4 2.5 1.9 4 4.5 4.2v3c-1.7 0-3.2-.5-4.5-1.4v6.3c0 3.6-2.6 6-6 5.8-3-.2-5.2-2.7-5-5.7.2-2.9 2.8-5 5.6-4.7v3.2c-1.4-.4-2.6.6-2.6 1.9 0 1.2 1 2.1 2.2 2.1 1.4 0 2.3-1 2.3-2.6V3h3.5z"/></svg></a>
+                <a class="social" href="#" aria-label="Facebook" style="width:42px;height:42px;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 8.5V7c0-.8.2-1.2 1.3-1.2H17V3h-2.6C11.7 3 11 4.4 11 6.6V8.5H9V12h2v9h3v-9h2.3l.4-3.5H14z"/></svg></a>
+              </div>
+            </div>
+
+            <div class="m-pad" style="padding-top:0;">
+              <a class="sponsor glass card-interactive" href="#" style="margin:6px 0 16px;">
+                <div class="stripe"></div>
+                <div class="body" style="padding:12px; gap:12px;">
+                  <div class="logo thumb" style="width:46px;height:46px;flex:0 0 46px;"></div>
+                  <div style="flex:1 1 auto; min-width:0;">
+                    <span class="label-mono label-accent">[ Patrocinado ]</span>
+                    <p class="brand">TechNova Store</p>
+                    <p class="desc" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Periféricos y accesorios gamer…</p>
+                  </div>
+                </div>
+              </a>
+
+              <div class="filters">
+                <button class="pill active">[ todos ]</button>
+                <button class="pill">[ mouses ]</button>
+                <button class="pill">[ audifonos ]</button>
+              </div>
+
+              <div class="carousel-wrap">
+                <div class="carousel" style="gap:12px;">
+                  <div class="slide" style="flex:0 0 46%;">
+                    <a class="pcard" href="#">
+                      <div class="pic thumb"><span class="badge cat">mouses</span></div>
+                      <h3 style="font-size:13px;">Mouse gamer inalámbrico RGB</h3>
+                      <p class="meta">Ver producto</p>
+                    </a>
+                  </div>
+                  <div class="slide" style="flex:0 0 46%;">
+                    <a class="pcard" href="#">
+                      <div class="pic thumb thumb-g2"><span class="badge cat">audifonos</span></div>
+                      <h3 style="font-size:13px;">Audífonos con cancelación de ruido</h3>
+                      <p class="meta">Ver producto</p>
+                    </a>
+                  </div>
+                  <div class="slide" style="flex:0 0 46%;">
+                    <a class="pcard" href="#">
+                      <div class="pic thumb thumb-g3"><span class="badge cat">teclados</span></div>
+                      <h3 style="font-size:13px;">Teclado mecánico 60%</h3>
+                      <p class="meta">Ver producto</p>
+                    </a>
+                  </div>
+                </div>
+                <div class="fade-right"></div>
+              </div>
+
+              <div style="padding-top:6px;">
+                <span class="label-mono video-label">[ Último video ]</span>
+                <div class="video">
+                  <div class="play"><div class="circle" style="width:54px;height:54px;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADMIN MÓVIL -->
+      <div>
+        <p class="phone-cap">Admin · panel</p>
+        <div class="phone">
+          <div class="screen">
+            <div class="glass" style="border-radius:0; border-left:0; border-right:0; border-top:0;">
+              <div style="padding:16px 16px 0;">
+                <div class="admin-top" style="padding-bottom:12px;">
+                  <span class="admin-brand">[ Panel Admin ]</span>
+                  <button class="pg-btn" style="padding:6px 8px;">Salir</button>
+                </div>
+                <nav class="admin-nav" style="gap:6px; padding-bottom:12px;">
+                  <a class="nav-link active" href="#">Productos</a>
+                  <a class="nav-link" href="#">Sponsors</a>
+                  <a class="nav-link" href="#">Video</a>
+                </nav>
+              </div>
+            </div>
+
+            <div class="m-pad">
+              <div class="row-head">
+                <h2 style="font-size:1.25rem;">Productos</h2>
+                <a class="btn btn-primary" href="#" style="padding:8px 14px;">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+                  Nuevo
+                </a>
+              </div>
+
+              <div class="rows">
+                <div class="arow">
+                  <div class="thumb" style="width:46px;height:46px;flex:0 0 46px;"></div>
+                  <div class="info">
+                    <p class="name" style="font-size:13px;">Mouse gamer inalámbrico RGB</p>
+                    <span class="cat">mouses</span>
+                  </div>
+                  <button class="icon-btn" style="width:34px;height:34px;" aria-label="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+                  <button class="icon-btn danger" style="width:34px;height:34px;" aria-label="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+                </div>
+                <div class="arow">
+                  <div class="thumb thumb-g2" style="width:46px;height:46px;flex:0 0 46px;"></div>
+                  <div class="info">
+                    <p class="name" style="font-size:13px;">Audífonos con cancelación de ruido</p>
+                    <span class="cat">audifonos</span>
+                  </div>
+                  <button class="icon-btn" style="width:34px;height:34px;" aria-label="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+                  <button class="icon-btn danger" style="width:34px;height:34px;" aria-label="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+                </div>
+                <div class="arow">
+                  <div class="thumb thumb-g4" style="width:46px;height:46px;flex:0 0 46px;"></div>
+                  <div class="info">
+                    <p class="name" style="font-size:13px;">Pixel Gear</p>
+                    <span class="badge badge-muted" style="margin-top:4px;">Inactivo</span>
+                  </div>
+                  <button class="icon-btn" style="width:34px;height:34px;" aria-label="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+                  <button class="icon-btn danger" style="width:34px;height:34px;" aria-label="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div>
+</body>
+</html>

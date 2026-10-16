@@ -9,6 +9,8 @@ import { subirImagen } from "@/lib/storage";
 import { sponsorSchema, SponsorFormValues } from "@/lib/schemas/sponsor";
 import { Sponsor } from "@/types/sponsor";
 import FormField from "./FormField";
+import AdminForm from "./AdminForm";
+import ImageField from "./ImageField";
 
 type SponsorFormProps = {
   sponsorExistente?: Sponsor;
@@ -37,7 +39,7 @@ export default function SponsorForm({ sponsorExistente }: SponsorFormProps) {
     },
   });
 
-  const [logoActual] = useState(sponsorExistente?.logo ?? "");
+  const logoActual = sponsorExistente?.logo ?? "";
   const [archivoLogo, setArchivoLogo] = useState<File | null>(null);
   const [subiendo, setSubiendo] = useState(false);
   const [error, setError] = useState("");
@@ -93,9 +95,11 @@ export default function SponsorForm({ sponsorExistente }: SponsorFormProps) {
   }
 
   return (
-    <form
+    <AdminForm
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col gap-4 max-w-md"
+      enviando={subiendo}
+      error={error}
+      textoBoton={esEdicion ? "Guardar cambios" : "Crear sponsor"}
     >
       <FormField
         label="Marca"
@@ -112,69 +116,32 @@ export default function SponsorForm({ sponsorExistente }: SponsorFormProps) {
       />
 
       <div>
-        <label className="block font-mono text-xs uppercase tracking-wider text-muted mb-1">
-          Fecha inicio
-        </label>
-        <input
-          type="datetime-local"
-          {...register("fecha_inicio")}
-          className="w-full font-body text-sm px-3 py-2 bg-surface border border-hairline text-ink focus:outline-none focus:border-ink transition-colors"
-        />
+        <label className="label-mono block mb-1">Fecha inicio</label>
+        <input type="datetime-local" {...register("fecha_inicio")} className="field" />
         {errors.fecha_inicio && (
-          <p className="font-mono text-xs text-red-600 mt-1">
+          <p className="font-mono text-[11px] text-danger mt-1.5">
             {errors.fecha_inicio.message}
           </p>
         )}
       </div>
 
       <div>
-        <label className="block font-mono text-xs uppercase tracking-wider text-muted mb-1">
-          Fecha fin
-        </label>
-        <input
-          type="datetime-local"
-          {...register("fecha_fin")}
-          className="w-full font-body text-sm px-3 py-2 bg-surface border border-hairline text-ink focus:outline-none focus:border-ink transition-colors"
-        />
+        <label className="label-mono block mb-1">Fecha fin</label>
+        <input type="datetime-local" {...register("fecha_fin")} className="field" />
         {errors.fecha_fin && (
-          <p className="font-mono text-xs text-red-600 mt-1">
+          <p className="font-mono text-[11px] text-danger mt-1.5">
             {errors.fecha_fin.message}
           </p>
         )}
       </div>
 
-      <div>
-        <label className="block font-mono text-xs uppercase tracking-wider text-muted mb-1">
-          Logo
-        </label>
-        {logoActual && !archivoLogo && (
-          <img
-            src={logoActual}
-            alt="Actual"
-            className="w-20 h-20 object-contain border border-hairline mb-2 bg-surface"
-          />
-        )}
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setArchivoLogo(e.target.files?.[0] ?? null)}
-          className="w-full font-body text-sm text-ink file:mr-3 file:py-2 file:px-3 file:border file:border-hairline file:bg-surface file:font-mono file:text-xs file:uppercase"
-        />
-      </div>
-
-      {error && <p className="font-mono text-xs text-red-600">{error}</p>}
-
-      <button
-        type="submit"
-        disabled={subiendo}
-        className="font-mono text-xs uppercase tracking-wider py-2.5 bg-ink text-background hover:bg-ink/90 disabled:opacity-50 transition-colors"
-      >
-        {subiendo
-          ? "Guardando..."
-          : esEdicion
-            ? "Guardar cambios"
-            : "Crear sponsor"}
-      </button>
-    </form>
+      <ImageField
+        etiqueta="Logo"
+        imagenActual={logoActual}
+        tieneArchivo={archivoLogo !== null}
+        onArchivo={setArchivoLogo}
+        classNamePreview="thumb w-20 h-20 object-contain mb-2"
+      />
+    </AdminForm>
   );
 }

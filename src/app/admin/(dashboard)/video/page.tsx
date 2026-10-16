@@ -79,13 +79,9 @@ export default function AdminVideo() {
           placeholder="https://www.youtube.com/watch?v=..."
         />
 
-        {mensaje && <p className="font-mono text-xs text-accent">{mensaje}</p>}
+        {mensaje && <p className="font-mono text-[11px] text-accent">{mensaje}</p>}
 
-        <button
-          type="submit"
-          disabled={guardando}
-          className="font-mono text-xs uppercase tracking-wider py-2.5 bg-ink text-background hover:bg-ink/90 disabled:opacity-50 transition-colors"
-        >
+        <button type="submit" disabled={guardando} className="btn btn-primary">
           {guardando ? "Guardando..." : "Guardar"}
         </button>
       </form>

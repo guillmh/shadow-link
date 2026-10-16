@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -10,6 +9,8 @@ import { subirImagen } from "@/lib/storage";
 import { productoSchema, ProductoFormValues } from "@/lib/schemas/producto";
 import { Producto } from "@/types/producto";
 import FormField from "./FormField";
+import AdminForm from "./AdminForm";
+import ImageField from "./ImageField";
 
 type ProductoFormProps = {
   productoExistente?: Producto;
@@ -22,7 +23,7 @@ export default function ProductoForm({ productoExistente }: ProductoFormProps) {
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     formState: { errors },
   } = useForm<ProductoFormValues>({
     resolver: zodResolver(productoSchema),
@@ -34,7 +35,7 @@ export default function ProductoForm({ productoExistente }: ProductoFormProps) {
     },
   });
 
-  const categoriaActual = watch("categoria");
+  const categoriaActual = useWatch({ control, name: "categoria" });
 
   const imagenActual = productoExistente?.imagen ?? "";
   const [archivoImagen, setArchivoImagen] = useState<File | null>(null);
@@ -93,9 +94,11 @@ export default function ProductoForm({ productoExistente }: ProductoFormProps) {
   }
 
   return (
-    <form
+    <AdminForm
       onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col gap-4 max-w-md"
+      enviando={subiendo}
+      error={error}
+      textoBoton={esEdicion ? "Guardar cambios" : "Crear producto"}
     >
       <FormField
         label="Nombre"
@@ -117,40 +120,13 @@ export default function ProductoForm({ productoExistente }: ProductoFormProps) {
         placeholder="https://..."
       />
 
-      <div>
-        <label className="block font-mono text-xs uppercase tracking-wider text-muted mb-1">
-          Imagen
-        </label>
-        {imagenActual && !archivoImagen && (
-          <Image
-            src={imagenActual}
-            alt="Actual"
-            width={80}
-            height={80}
-            className="object-contain border border-hairline mb-2 bg-surface"
-          />
-        )}
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setArchivoImagen(e.target.files?.[0] ?? null)}
-          className="w-full font-body text-sm text-ink file:mr-3 file:py-2 file:px-3 file:border file:border-hairline file:bg-surface file:font-mono file:text-xs file:uppercase"
-        />
-      </div>
-
-      {error && <p className="font-mono text-xs text-red-600">{error}</p>}
-
-      <button
-        type="submit"
-        disabled={subiendo}
-        className="font-mono text-xs uppercase tracking-wider py-2.5 bg-ink text-background hover:bg-ink/90 disabled:opacity-50 transition-colors"
-      >
-        {subiendo
-          ? "Guardando..."
-          : esEdicion
-            ? "Guardar cambios"
-            : "Crear producto"}
-      </button>
-    </form>
+      <ImageField
+        etiqueta="Imagen"
+        imagenActual={imagenActual}
+        tieneArchivo={archivoImagen !== null}
+        onArchivo={setArchivoImagen}
+        classNamePreview="thumb object-contain mb-2"
+      />
+    </AdminForm>
   );
 }

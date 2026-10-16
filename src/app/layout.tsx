@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
@@ -18,9 +18,30 @@ const jetbrainsMono = JetBrains_Mono({
   variable: "--font-mono",
 });
 
+const title = "ShadowEZ";
+const description = "Reviews, tips y setup de tecnología";
+
 export const metadata: Metadata = {
-  title: "ShadowEZ",
-  description: "Reviews, tips y setup de tecnología",
+  title,
+  description,
+  icons: {
+    icon: "/favicon.ico",
+  },
+  openGraph: {
+    title,
+    description,
+    type: "website",
+    locale: "es_ES",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#2f6fed",
 };
 
 export default function RootLayout({
@@ -31,11 +52,9 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${spaceGrotesk.variable} ${inter.variable} h-full antialiased`}
+      className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
-      <body
-        className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable} font-body`}
-      >
+      <body className="font-body">
         {children}
         <Analytics />
       </body>

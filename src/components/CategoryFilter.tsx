@@ -21,11 +21,7 @@ export default function CategoryFilter({
           <button
             key={cat}
             onClick={() => onChange(cat)}
-            className={`whitespace-nowrap px-3 py-1.5 font-mono text-xs uppercase tracking-wider border transition-colors ${
-              activa
-                ? "bg-ink text-background border-ink"
-                : "bg-transparent text-muted border-hairline hover:border-ink hover:text-ink"
-            }`}
+            className={`pill ${activa ? "active" : ""}`}
           >
             [ {label} ]
           </button>

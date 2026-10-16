@@ -5,5 +5,4 @@ export type Producto = {
   categoria: string;
   link?: string | null;
   descripcion?: string | null;
-  destacado?: boolean;
 };

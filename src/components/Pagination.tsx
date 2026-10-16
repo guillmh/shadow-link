@@ -16,7 +16,7 @@ export default function Pagination({
       <button
         onClick={() => onChange(Math.max(1, paginaActual - 1))}
         disabled={paginaActual === 1}
-        className="font-mono text-xs uppercase tracking-wider text-ink disabled:text-muted disabled:cursor-not-allowed hover:underline"
+        className="font-mono text-xs uppercase tracking-wider text-ink rounded-sm px-1 py-1 transition-colors hover:text-accent disabled:text-muted disabled:cursor-not-allowed disabled:opacity-55 focus-visible:outline-none focus-visible:shadow-[var(--ring)]"
       >
         Anterior
       </button>
@@ -28,7 +28,7 @@ export default function Pagination({
       <button
         onClick={() => onChange(Math.min(totalPaginas, paginaActual + 1))}
         disabled={paginaActual === totalPaginas}
-        className="font-mono text-xs uppercase tracking-wider text-ink disabled:text-muted disabled:cursor-not-allowed hover:underline"
+        className="font-mono text-xs uppercase tracking-wider text-ink rounded-sm px-1 py-1 transition-colors hover:text-accent disabled:text-muted disabled:cursor-not-allowed disabled:opacity-55 focus-visible:outline-none focus-visible:shadow-[var(--ring)]"
       >
         Siguiente
       </button>

@@ -18,7 +18,7 @@ export default function MoreProduct({
   return (
     <Link
       href={href}
-      className="shrink-0 w-[42vw] md:w-[220px] snap-start flex flex-col items-center justify-center gap-3 aspect-square border border-hairline bg-surface hover:border-ink transition-colors"
+      className="shrink-0 w-[42vw] md:w-[220px] snap-start flex flex-col items-center justify-center gap-3 aspect-square card card-interactive rounded-lg"
     >
       <div className="relative w-16 h-16">
         {imagenesPreview.map((img, i) => (
@@ -40,7 +40,7 @@ export default function MoreProduct({
           </div>
         ))}
       </div>
-      <span className="font-mono text-xs uppercase tracking-wider text-ink">
+      <span className="label-mono text-ink">
         +{cantidadRestante} más
       </span>
     </Link>

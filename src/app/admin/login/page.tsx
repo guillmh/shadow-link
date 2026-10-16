@@ -34,10 +34,10 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-background px-4">
+    <main className="min-h-screen flex items-center justify-center px-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm border border-hairline bg-surface p-6"
+        className="glass-strong w-full max-w-sm rounded-xl shadow-lg p-6"
       >
         <span className="font-mono text-[10px] uppercase tracking-wider text-muted">
           [ Admin ]
@@ -46,37 +46,35 @@ export default function LoginPage() {
           Iniciar sesión
         </h1>
 
-        <label className="block font-mono text-xs uppercase tracking-wider text-muted mb-1">
-          Correo
-        </label>
+        <label htmlFor="correo" className="label-mono block mb-1">Correo</label>
         <input
+          id="correo"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full font-body text-sm px-3 py-2 bg-background border border-hairline text-ink focus:outline-none focus:border-ink transition-colors mb-4"
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? "login-error" : undefined}
+          className="field mb-4"
         />
 
-        <label className="block font-mono text-xs uppercase tracking-wider text-muted mb-1">
-          Contraseña
-        </label>
+        <label htmlFor="password" className="label-mono block mb-1">Contraseña</label>
         <input
+          id="password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="w-full font-body text-sm px-3 py-2 bg-background border border-hairline text-ink focus:outline-none focus:border-ink transition-colors mb-4"
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? "login-error" : undefined}
+          className="field mb-4"
         />
 
         {error && (
-          <p className="font-mono text-xs text-red-600 mb-4">{error}</p>
+          <p id="login-error" className="font-mono text-[11px] text-danger mb-4">{error}</p>
         )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full font-mono text-xs uppercase tracking-wider py-2.5 bg-ink text-background hover:bg-ink/90 disabled:opacity-50 transition-colors"
-        >
+        <button type="submit" disabled={loading} className="btn btn-primary w-full">
           {loading ? "Ingresando..." : "Ingresar"}
         </button>
       </form>

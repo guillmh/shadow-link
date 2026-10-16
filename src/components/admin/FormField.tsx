@@ -15,18 +15,24 @@ export default function FormField({
   error,
   placeholder,
 }: FormFieldProps) {
+  const id = registro.name;
+  const idError = `${id}-error`;
+
   return (
     <div>
-      <label className="block font-mono text-xs uppercase tracking-wider text-muted mb-1">
-        {label}
-      </label>
+      <label htmlFor={id} className="label-mono block mb-1">{label}</label>
       <input
+        id={id}
         type={type}
         placeholder={placeholder}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? idError : undefined}
         {...registro}
-        className="w-full font-body text-sm px-3 py-2 bg-surface border border-hairline text-ink placeholder:text-muted focus:outline-none focus:border-ink transition-colors"
+        className={`field${error ? " is-error" : ""}`}
       />
-      {error && <p className="font-mono text-xs text-red-600 mt-1">{error}</p>}
+      {error && (
+        <p id={idError} className="font-mono text-[11px] text-danger mt-1.5">{error}</p>
+      )}
     </div>
   );
 }

@@ -1,28 +1,573 @@
 @import "tailwindcss";
 
+/* ============================================================
+   TOKENS — shadow-link "Glass minimalista"
+   Se conservan los nombres existentes (--color-*) y se añaden
+   los nuevos. Todos los valores se exponen en @theme inline más
+   abajo para que Tailwind v4 genere las utilidades.
+   ============================================================ */
 :root {
-  --color-background: #fafaf9;
-  --color-surface: #ffffff;
+  /* --- Color base (mismos nombres, valores ajustados) --- */
+  --color-background: #f4f6fb; /* antes #fafaf9; frío con tinte azul para que el cristal lea */
+  --color-surface: #ffffff; /* sólido de respaldo (sin backdrop-filter) */
   --color-ink: #14161a;
   --color-muted: #6b7280;
   --color-accent: #2f6fed;
-  --color-hairline: #e5e7eb;
+  --color-accent-ink: #1f4fbd; /* hover del acento */
+  --color-hairline: rgba(20, 22, 26, 0.08); /* antes #e5e7eb; translúcido para cristal */
+  --color-danger: #dc2626;
+
+  /* --- Cristal --- */
+  --glass-bg: rgba(255, 255, 255, 0.62);
+  --glass-bg-strong: rgba(255, 255, 255, 0.8);
+  --glass-bg-soft: rgba(255, 255, 255, 0.42);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  /*
+   * Contorno sutil de campos/píldoras/badges/miniaturas. La usan las
+   * primitivas `.field`, `.pill`, `.badge`, `.thumb`, `.btn-ghost` e
+   * `.icon-btn:hover`; sin definirla, `border: 1px solid var(--hairline)`
+   * es inválido y el borde NO se dibuja. Mismo valor que en el boceto.
+   */
+  --hairline: rgba(20, 22, 26, 0.08);
+  --hairline-strong: rgba(20, 22, 26, 0.16);
+  --glass-blur: 16px;
+  --glass-sat: 145%;
+
+  /* --- Radios --- */
+  --radius-xs: 8px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-2xl: 30px;
+  --radius-pill: 999px;
+
+  /* --- Sombras --- */
+  --shadow-xs: 0 1px 2px rgba(20, 22, 26, 0.05);
+  --shadow-sm: 0 2px 8px rgba(20, 22, 26, 0.06), 0 1px 2px rgba(20, 22, 26, 0.04);
+  --shadow-md: 0 8px 24px rgba(20, 22, 26, 0.08), 0 2px 6px rgba(20, 22, 26, 0.05);
+  --shadow-lg: 0 18px 48px rgba(20, 22, 26, 0.12), 0 4px 12px rgba(20, 22, 26, 0.06);
+  --shadow-accent: 0 8px 24px rgba(47, 111, 237, 0.28);
+
+  /* --- Movimiento --- */
+  --dur-fast: 140ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.5, 1);
+
+  /* Anillo de foco accesible (visible sobre cristal claro y acento) */
+  --ring: 0 0 0 2px var(--color-background), 0 0 0 4px rgba(47, 111, 237, 0.55);
 }
 
 @theme inline {
+  /* Colores (existentes + nuevos) */
   --color-background: var(--color-background);
   --color-surface: var(--color-surface);
   --color-ink: var(--color-ink);
   --color-muted: var(--color-muted);
   --color-accent: var(--color-accent);
+  --color-accent-ink: var(--color-accent-ink);
   --color-hairline: var(--color-hairline);
+  --color-danger: var(--color-danger);
 
+  /* Fuentes (sin cambios) */
   --font-display: var(--font-display);
   --font-body: var(--font-body);
   --font-mono: var(--font-mono);
+
+  /* Radios -> rounded-xs/sm/md/lg/xl/2xl/pill */
+  --radius-xs: var(--radius-xs);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --radius-2xl: var(--radius-2xl);
+  --radius-pill: var(--radius-pill);
+
+  /* Sombras -> shadow-xs/sm/md/lg/accent */
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-accent: var(--shadow-accent);
 }
 
-body {
-  background-color: var(--color-background);
-  color: var(--color-ink);
+/* ============================================================
+   BASE — atmósfera de fondo (necesaria para que el cristal lea)
+   ============================================================ */
+@layer base {
+  /*
+   * `isolation: isolate` convierte <body> en stacking context para que el grano
+   * (body::before, z-index:-1) quede por encima del degradado pero por DEBAJO
+   * del contenido, igual que en el boceto. No afecta a `position: fixed`
+   * (isolation no crea containing block).
+   */
+  body {
+    color: var(--color-ink);
+    min-height: 100vh;
+    isolation: isolate;
+    background:
+      radial-gradient(
+        58rem 40rem at 8% -10%,
+        rgba(47, 111, 237, 0.16),
+        transparent 60%
+      ),
+      radial-gradient(
+        46rem 32rem at 112% 4%,
+        rgba(124, 92, 240, 0.14),
+        transparent 55%
+      ),
+      radial-gradient(
+        50rem 46rem at 50% 118%,
+        rgba(47, 111, 237, 0.1),
+        transparent 60%
+      ),
+      var(--color-background);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+  }
+
+  /* Grano sutil opcional. `pointer-events: none` => nunca intercepta clics. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+/* ============================================================
+   PRIMITIVAS REUTILIZABLES (capa components: las utilidades
+   de Tailwind pueden sobreescribirlas)
+   ============================================================ */
+@layer components {
+  /* --- Superficies de cristal --- */
+  .glass {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-sm);
+  }
+  .glass-strong {
+    background: var(--glass-bg-strong);
+    -webkit-backdrop-filter: blur(22px) saturate(var(--glass-sat));
+    backdrop-filter: blur(22px) saturate(var(--glass-sat));
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-md);
+  }
+
+  /* --- Etiquetas mono (identidad) --- */
+  .label-mono {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .label-accent {
+    color: var(--color-accent);
+  }
+
+  /* --- Botón base --- */
+  .btn {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    padding: 10px 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      background-color var(--dur-base) var(--ease-out),
+      border-color var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out),
+      color var(--dur-base) var(--ease-out);
+  }
+  .btn:focus-visible {
+    outline: none;
+    box-shadow: var(--ring);
+  }
+
+  .btn-primary {
+    background: var(--color-ink);
+    color: #fff;
+    box-shadow: var(--shadow-xs);
+  }
+  .btn-primary:hover {
+    background: #1d2027;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+  .btn-primary:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: var(--shadow-xs);
+  }
+
+  .btn-accent {
+    background: var(--color-accent);
+    color: #fff;
+    box-shadow: var(--shadow-accent);
+  }
+  .btn-accent:hover {
+    background: var(--color-accent-ink);
+    transform: translateY(-1px);
+  }
+  .btn-accent:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  .btn-ghost {
+    background: var(--glass-bg-soft);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border-color: var(--hairline);
+    color: var(--color-ink);
+  }
+  .btn-ghost:hover {
+    border-color: var(--hairline-strong);
+    background: var(--glass-bg);
+    transform: translateY(-1px);
+  }
+  .btn-ghost:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  .btn:disabled,
+  .btn[aria-disabled="true"] {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: var(--shadow-xs) !important;
+  }
+
+  /* --- Píldora de filtro / categoría --- */
+  .pill {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding: 7px 14px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--hairline);
+    background: var(--glass-bg-soft);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: var(--color-muted);
+    cursor: pointer;
+    transition:
+      color var(--dur-base) var(--ease-out),
+      background-color var(--dur-base) var(--ease-out),
+      border-color var(--dur-base) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out);
+  }
+  .pill:hover {
+    color: var(--color-ink);
+    border-color: var(--hairline-strong);
+    transform: translateY(-1px);
+  }
+  .pill:active {
+    transform: translateY(0) scale(0.97);
+  }
+  .pill:focus-visible {
+    outline: none;
+    box-shadow: var(--ring);
+  }
+  .pill.active {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+    color: #fff;
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* --- Badges --- */
+  .badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--hairline);
+    background: var(--glass-bg-strong);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    color: var(--color-ink);
+  }
+  .badge-accent {
+    color: var(--color-accent);
+    border-color: rgba(47, 111, 237, 0.28);
+    background: rgba(47, 111, 237, 0.1);
+  }
+  .badge-muted {
+    color: var(--color-muted);
+  }
+  /*
+   * El badge de las tarjetas de producto va sobre `.thumb` (superficie sólida),
+   * así que el `backdrop-filter` no aporta nada visual y sí cuesta GPU al
+   * repetirse en toda la grilla/carrusel. Se neutraliza SOLO ahí; el badge del
+   * admin (sobre `.arow`, con degradado detrás) conserva su cristal.
+   */
+  .thumb .badge {
+    background: rgba(255, 255, 255, 0.9);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  /* --- Campos de formulario --- */
+  .field {
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: 14px;
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--hairline);
+    background: var(--glass-bg-soft);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    color: var(--color-ink);
+    transition:
+      border-color var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out),
+      background-color var(--dur-base) var(--ease-out);
+  }
+  .field::placeholder {
+    color: var(--color-muted);
+  }
+  .field:hover {
+    border-color: var(--hairline-strong);
+    background: var(--glass-bg);
+  }
+  .field:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    background: var(--glass-bg-strong);
+    box-shadow: 0 0 0 4px rgba(47, 111, 237, 0.14);
+  }
+  .field.is-error {
+    border-color: rgba(220, 38, 38, 0.55);
+    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+  }
+
+  /* --- Tarjeta --- */
+  .card {
+    border-radius: var(--radius-lg);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-sm);
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out),
+      border-color var(--dur-base) var(--ease-out);
+  }
+  .card-interactive:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(255, 255, 255, 0.9);
+  }
+  .card-interactive:active {
+    transform: translateY(-1px) scale(0.995);
+  }
+  a.card-interactive:focus-visible {
+    outline: none;
+    box-shadow: var(--ring);
+  }
+
+  /* --- Miniatura / contenedor de imagen ---
+     Nota: en el boceto .thumb incluía un pseudo-elemento decorativo y las
+     variantes .thumb-g2/g3/g4 como *placeholder* de next/image. Aquí se
+     define solo el CONTENEDOR (radio + borde + recorte) para envolver
+     imágenes reales; NO se incluye el punto decorativo para no tapar las
+     fotos de producto. */
+  .thumb {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--hairline);
+    background: var(--color-surface);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* --- Fila de tabla del admin --- */
+  .arow {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    border-radius: var(--radius-lg);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-xs);
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out),
+      border-color var(--dur-base) var(--ease-out);
+  }
+  .arow:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(255, 255, 255, 0.92);
+  }
+  .arow .thumb {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+  }
+  .arow .info {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .arow .info .name {
+    font-size: 14px;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .arow .info .cat {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    letter-spacing: 0.08em;
+  }
+
+  /* --- Botón de icono (editar / eliminar) --- */
+  .icon-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-md);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--color-muted);
+    cursor: pointer;
+    transition:
+      color var(--dur-base) var(--ease-out),
+      background-color var(--dur-base) var(--ease-out),
+      border-color var(--dur-base) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out);
+  }
+  .icon-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+  .icon-btn:hover {
+    color: var(--color-ink);
+    background: var(--glass-bg);
+    border-color: var(--hairline);
+    transform: translateY(-1px);
+  }
+  .icon-btn:active {
+    transform: translateY(0) scale(0.94);
+  }
+  .icon-btn:focus-visible {
+    outline: none;
+    box-shadow: var(--ring);
+  }
+  .icon-btn.danger:hover {
+    color: var(--color-danger);
+    background: rgba(220, 38, 38, 0.08);
+    border-color: rgba(220, 38, 38, 0.2);
+  }
+
+  /* --- Enlace de navegación del admin --- */
+  .nav-link {
+    position: relative;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--color-muted);
+    padding: 8px 14px;
+    border-radius: var(--radius-pill);
+    transition:
+      color var(--dur-base) var(--ease-out),
+      background-color var(--dur-base) var(--ease-out),
+      transform var(--dur-fast) var(--ease-out);
+  }
+  .nav-link:hover {
+    color: var(--color-ink);
+    background: var(--glass-bg);
+    transform: translateY(-1px);
+  }
+  .nav-link:focus-visible {
+    outline: none;
+    box-shadow: var(--ring);
+  }
+  .nav-link.active {
+    color: #fff;
+    background: var(--color-ink);
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+/* ============================================================
+   MÓVIL — menor coste de backdrop-filter y más opacidad
+   ============================================================ */
+@media (max-width: 640px) {
+  :root {
+    --glass-blur: 10px;
+    --glass-bg: rgba(255, 255, 255, 0.72);
+    --glass-bg-strong: rgba(255, 255, 255, 0.86);
+  }
+}
+
+/* ============================================================
+   FALLBACK sin soporte de backdrop-filter (fondos casi opacos)
+   ============================================================ */
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
+  .glass,
+  .arow,
+  .btn-ghost,
+  .pill,
+  .badge,
+  .field {
+    background: rgba(255, 255, 255, 0.9);
+  }
+  .glass-strong,
+  .card {
+    background: rgba(255, 255, 255, 0.95);
+  }
+}
+
+/* ============================================================
+   MOVIMIENTO REDUCIDO
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+  .card-interactive:hover,
+  .arow:hover,
+  .btn:hover,
+  .icon-btn:hover,
+  .nav-link:hover,
+  .pill:hover {
+    transform: none;
+  }
 }

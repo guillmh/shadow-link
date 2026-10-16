@@ -29,7 +29,7 @@ const socialLinks: SocialLink[] = [
 export default function Hero() {
   return (
     <section className="flex flex-col items-center text-center px-4 pt-10 pb-6">
-      <div className="w-24 h-24 md:w-32 md:h-32 relative rounded-full overflow-hidden border-2 border-gray-200">
+      <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden shadow-md border-[3px] border-solid border-transparent bg-gradient-to-br from-accent/50 to-[#7c5cf0]/50">
         <Image
           src="/logo.webp"
           alt="Foto de perfil"
@@ -40,10 +40,10 @@ export default function Hero() {
         />
       </div>
 
-      <h1 className="mt-4 text-xl md:text-2xl font-bold">ShadowEZ</h1>
+      <h1 className="mt-4 font-display text-xl md:text-2xl font-bold tracking-tight">ShadowEZ</h1>
       <a
         href="mailto:guillmhbusiness@gmail.com"
-        className="mt-1 text-sm md:text-base text-muted max-w-xs hover:text-ink transition-colors"
+        className="mt-1 text-sm md:text-base text-muted max-w-xs rounded-sm transition-colors hover:text-ink focus-visible:outline-none focus-visible:shadow-[var(--ring)]"
       >
         📧contacto@shadowez.com
       </a>
@@ -55,10 +55,10 @@ export default function Hero() {
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition"
+            className="group w-10 h-10 flex items-center justify-center rounded-full glass card-interactive transition hover:-translate-y-0.5"
             aria-label={nombre}
           >
-            <Icono size={20} className="text-gray-700" />
+            <Icono size={20} className="text-ink transition-colors group-hover:text-accent" />
           </a>
         ))}
       </div>
