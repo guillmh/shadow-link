@@ -664,7 +664,11 @@
   .creator-sponsor small { display: block; color: #beb4ce; font-size: 11px; }
   .creator-sponsor strong { display: block; font-family: var(--font-display); font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
   .creator-sponsor-description { display: block; font-size: 13px; line-height: 1.5; color: #cdc5dc; margin-top: 3px; overflow-wrap: anywhere; }
-  .creator-video { margin-block: 6px 30px; }
+  .creator-video {
+    margin-block: 6px 16px;
+    padding-block: 14px;
+    border-block: 1px solid var(--color-hairline);
+  }
   .creator-video-meta {
     display: grid;
     grid-template-columns: 44px minmax(0, 1fr);
@@ -726,3 +730,74 @@
   .creator-products:hover .creator-products-copy > span { text-decoration: underline; text-underline-offset: 3px; }
 }
 @media (min-width: 768px) { .creator-avatar { width: 112px; height: 112px; } }
+
+/* El catálogo usa los colores de Apariencia con la luz arriba a la derecha. */
+@layer components {
+  .catalog-page {
+    --color-ink: #f2f6ff;
+    --color-muted: #bac9df;
+    --color-accent: #a5c9ff;
+    --color-accent-ink: #163d75;
+    --color-surface: #121b2a;
+    --color-hairline: #ffffff29;
+    --catalog-control: #111b2c;
+    --catalog-border: #697b98;
+    --ring: 0 0 0 2px #0c1422, 0 0 0 4px #a5c9ff;
+    min-height: 100svh;
+    color: var(--color-ink);
+    color-scheme: dark;
+    background:
+      radial-gradient(ellipse 960px 620px at 90% 0%, color-mix(in srgb, var(--home-end) 28%, #080d17), transparent),
+      color-mix(in srgb, var(--home-start) 28%, #080d17);
+  }
+  .catalog-content { width: min(100%, 1120px); margin-inline: auto; padding: 22px clamp(16px, 4vw, 32px) 48px; }
+  .catalog-header { margin-bottom: 20px; }
+  .catalog-back {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 8px;
+    border-radius: 6px;
+    color: var(--color-accent);
+    font-size: 14px;
+  }
+  .catalog-back:hover { text-decoration: underline; text-underline-offset: 4px; }
+  .catalog-back:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+  .catalog-header h1 { margin-top: 8px; font-size: clamp(28px, 5vw, 44px); font-weight: 700; line-height: 1.12; letter-spacing: -.035em; }
+  .catalog-header p { margin-top: 8px; color: var(--color-muted); font-size: 14px; }
+  .catalog-search { position: relative; max-width: 580px; }
+  .catalog-search svg { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--color-muted); pointer-events: none; }
+  .catalog-search .field {
+    min-height: 48px;
+    padding-inline: 44px 14px;
+    border-color: var(--catalog-border);
+    background: var(--catalog-control);
+    font-size: 16px;
+    backdrop-filter: none;
+  }
+  .catalog-search .field:focus { border-color: var(--color-accent); box-shadow: var(--ring); }
+  .catalog-filters { margin-top: 12px; }
+  .catalog-filters [role="group"] { margin-inline: -4px; padding-inline: 4px; }
+  .catalog-filters .pill {
+    border-color: var(--catalog-border);
+    background: var(--catalog-control);
+    color: var(--color-muted);
+    font-family: var(--font-body);
+    font-size: 13px;
+    letter-spacing: 0;
+    text-transform: capitalize;
+    backdrop-filter: none;
+  }
+  .catalog-filters .pill:hover { border-color: var(--color-accent); color: var(--color-ink); }
+  .catalog-filters .pill.active { background: var(--color-accent); border-color: var(--color-accent); color: #0a1a34; font-weight: 650; box-shadow: none; }
+  .catalog-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(12px, 2vw, 20px); margin-top: 18px; }
+  .catalog-grid .product-tile { height: 100%; padding: 8px; border-color: var(--color-hairline); box-shadow: none; }
+  .catalog-grid .product-tile:hover { border-color: var(--color-accent); }
+  .catalog-grid .product-tile .thumb { border-bottom: 0; border-radius: 11px; }
+  .catalog-grid .product-tile .badge { font-family: var(--font-body); letter-spacing: 0; text-transform: none; }
+  .catalog-grid .product-tile h2 { font-size: 14px; }
+  .catalog-grid .product-tile p { margin-top: 5px; font-size: 13px; }
+  .catalog-empty { padding: 24px 16px; border: 1px solid var(--color-hairline); border-radius: 14px; background: var(--color-surface); color: var(--color-muted); font-size: 14px; }
+  @media (min-width: 640px) { .catalog-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (min-width: 960px) { .catalog-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+}

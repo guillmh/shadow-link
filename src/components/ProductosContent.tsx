@@ -55,39 +55,32 @@ export default function ProductosContent({
   );
 
   return (
-    <main className="max-w-5xl mx-auto pb-12">
-      <div className="px-4 pt-6">
+    <>
+      <header className="catalog-header">
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider text-muted rounded-sm transition hover:text-ink hover:-translate-x-0.5 focus-visible:outline-none focus-visible:shadow-[var(--ring)]"
+          className="catalog-back"
         >
-          <ArrowLeft size={14} />
-          Volver
+          <ArrowLeft size={16} aria-hidden="true" />
+          Volver al inicio
         </Link>
-        <h1 className="font-display text-2xl text-ink mt-3 tracking-tight">
-          Todos los productos
-        </h1>
+        <h1 className="font-display">Todos los productos</h1>
+        <p>Busca por nombre o explora por categoría.</p>
+      </header>
+
+      <div className="catalog-search" role="search">
+        <Search size={18} aria-hidden="true" />
+        <input
+          type="search"
+          aria-label="Buscar producto"
+          value={busqueda}
+          onChange={(e) => handleBusquedaChange(e.target.value)}
+          placeholder="Buscar producto…"
+          className="field"
+        />
       </div>
 
-      <div className="px-4 mt-4">
-        <div className="relative">
-          <Search
-            size={16}
-            aria-hidden="true"
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted"
-          />
-          <input
-            type="search"
-            aria-label="Buscar producto"
-            value={busqueda}
-            onChange={(e) => handleBusquedaChange(e.target.value)}
-            placeholder="Buscar producto..."
-            className="field pl-9"
-          />
-        </div>
-      </div>
-
-      <div className="mt-4">
+      <div className="catalog-filters">
         <CategoryFilter
           categorias={categorias}
           categoriaActiva={categoriaActiva}
@@ -95,14 +88,14 @@ export default function ProductosContent({
         />
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5 px-4 mt-6">
+      <div className="catalog-grid">
         {productosPagina.map((producto) => (
           <ProductCard key={producto.id} producto={producto} />
         ))}
       </div>
 
       {productosFiltrados.length === 0 && (
-        <p className="px-4 mt-6 text-sm text-muted font-mono">
+        <p role="status" className="catalog-empty">
           {busqueda.trim() !== ""
             ? `Sin resultados para "${busqueda}"`
             : "No hay productos en esta categoría todavía."}
@@ -113,6 +106,6 @@ export default function ProductosContent({
         totalPaginas={totalPaginas}
         onChange={setPagina}
       />
-    </main>
+    </>
   );
 }
