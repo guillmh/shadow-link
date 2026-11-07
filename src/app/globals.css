@@ -11,8 +11,8 @@
   --color-background: #f4f6fb; /* antes #fafaf9; frío con tinte azul para que el cristal lea */
   --color-surface: #ffffff; /* sólido de respaldo (sin backdrop-filter) */
   --color-ink: #14161a;
-  --color-muted: #6b7280;
-  --color-accent: #2f6fed;
+  --color-muted: #526078;
+  --color-accent: #245bd1;
   --color-accent-ink: #1f4fbd; /* hover del acento */
   --color-hairline: rgba(20, 22, 26, 0.08); /* antes #e5e7eb; translúcido para cristal */
   --color-danger: #dc2626;
@@ -57,7 +57,7 @@
   --ease-spring: cubic-bezier(0.34, 1.4, 0.5, 1);
 
   /* Anillo de foco accesible (visible sobre cristal claro y acento) */
-  --ring: 0 0 0 2px var(--color-background), 0 0 0 4px rgba(47, 111, 237, 0.55);
+  --ring: 0 0 0 2px var(--color-background), 0 0 0 4px var(--color-accent);
 }
 
 @theme inline {
@@ -255,6 +255,7 @@
   .pill {
     font-family: var(--font-mono);
     font-size: 12px;
+    min-height: 44px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     white-space: nowrap;
@@ -571,3 +572,157 @@
     transform: none;
   }
 }
+
+
+/* Ajustes visuales: se mantiene la distribución y navegación originales. */
+@layer components {
+  .product-tile {
+    overflow: hidden;
+    background: var(--color-surface);
+    border: 1px solid rgba(73, 100, 153, 0.16);
+    box-shadow: 0 3px 12px rgba(28, 47, 84, 0.05);
+    transition:
+      transform var(--dur-base) var(--ease-out),
+      border-color var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out);
+  }
+  .product-tile:hover {
+    border-color: rgba(36, 91, 209, 0.35);
+    box-shadow: 0 10px 24px rgba(28, 47, 84, 0.1);
+  }
+  .product-tile:focus-visible { box-shadow: var(--ring); }
+  .product-tile .thumb {
+    border: 0;
+    border-bottom: 1px solid rgba(73, 100, 153, 0.1);
+    background: linear-gradient(145deg, #ffffff, #f3f6fc);
+  }
+  .product-tile .badge {
+    max-width: calc(100% - 1rem);
+    overflow-wrap: anywhere;
+    font-size: 12px;
+    color: var(--color-accent-ink);
+    background: #edf3ff;
+    border-color: rgba(36, 91, 209, 0.16);
+  }
+  .pill.active {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    box-shadow: 0 3px 10px rgba(36, 91, 209, 0.16);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .product-tile:hover { transform: none; }
+}
+
+/* Portada pública: fondo e identidad definidos para esta página. */
+@layer components {
+  .creator-home {
+    --color-background: #000;
+    --color-surface: #141319;
+    --color-ink: #f4f2fa;
+    --color-muted: #c1bbd0;
+    --color-accent: #b7a2ff;
+    --color-accent-ink: #cec0ff;
+    --color-hairline: #ffffff24;
+    --hairline: #ffffff24;
+    --hairline-strong: #ffffff4d;
+    --glass-bg-soft: #ffffff0a;
+    --ring: 0 0 0 2px #09080e, 0 0 0 4px #c6b5ff;
+    position: relative;
+    isolation: isolate;
+    min-height: 100svh;
+    padding-bottom: 44px;
+    color: var(--color-ink);
+    background: radial-gradient(125% 125% at 50% 10%, var(--home-start, #000) 40%, var(--home-end, #0a52cb) 100%);
+    color-scheme: dark;
+  }
+  .creator-home::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    pointer-events: none;
+    background: url("/grano.png") repeat;
+    opacity: 0.035;
+  }
+  .creator-content { width: min(100%, 672px); margin-inline: auto; padding-inline: 16px; }
+  .creator-cover { position: relative; width: 100%; height: clamp(140px, 22vw, 340px); mask-image: linear-gradient(#000 25%, #000d 52%, transparent 100%); }
+  .creator-cover img { object-position: center 40%; }
+  .creator-profile { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 16px 20px; margin-top: -22px; }
+  .creator-avatar { width: 96px; height: 96px; border: 3px solid #ffffff24; border-radius: 50%; object-fit: cover; box-shadow: 0 8px 30px #0006; }
+  .creator-profile h1 { margin-top: 14px; font-size: clamp(26px, 4vw, 32px); font-weight: 700; letter-spacing: -.035em; }
+  .creator-email { display: inline-flex; align-items: center; gap: 9px; min-height: 48px; margin-top: 8px; padding: 6px 14px; border-radius: 12px; border: 1px solid #b7a2ff30; background: #ffffff06; font-size: 14px; text-align: left; color: #ece7fa; }
+  .creator-email small { display: block; color: #bcb3ce; font-size: 11px; margin-bottom: 1px; }
+  .creator-email:hover { background: #ffffff0d; border-color: #b7a2ff66; }
+  .creator-socials { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 12px; }
+  .creator-socials a { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; color: #d8d2e5; transition: color 160ms, background-color 160ms; }
+  .creator-socials a:hover { color: #fff; background: #ffffff12; }
+  .creator-home a:focus-visible, .creator-home button:focus-visible { outline: 2px solid #d0c1ff; outline-offset: 4px; }
+  .creator-sponsor { display: flex; align-items: center; gap: 14px; padding: 16px; margin: 0 0 26px; border: 1px solid #ffffff24; border-radius: 16px; background: #ffffff08; color: #e6e1ef; transition: background-color 160ms; }
+  .creator-sponsor:hover { background: #ffffff10; }
+  .creator-sponsor-logo { display: grid; place-items: center; width: 56px; height: 56px; padding: 4px; flex-shrink: 0; background: #fffffff0; border-radius: 12px; }
+  .creator-sponsor small { display: block; color: #beb4ce; font-size: 11px; }
+  .creator-sponsor strong { display: block; font-family: var(--font-display); font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
+  .creator-sponsor-description { display: block; font-size: 13px; line-height: 1.5; color: #cdc5dc; margin-top: 3px; overflow-wrap: anywhere; }
+  .creator-video { margin-block: 6px 30px; }
+  .creator-video-meta {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    align-items: start;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .creator-video-avatar { display: grid; width: 44px; height: 44px; place-items: center; border-radius: 50%; }
+  .creator-video-avatar img { border-radius: 50%; }
+  .creator-video-meta h2 { margin-bottom: 4px; font-size: 16px; font-weight: 650; line-height: 1.35; overflow-wrap: anywhere; }
+  .creator-video-meta h2 a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .creator-video-meta p { color: var(--color-muted); font-size: 13px; line-height: 1.5; }
+  .creator-video-window { position: relative; aspect-ratio: 16 / 9; width: 100%; overflow: hidden; border-radius: 16px; background: #121015; }
+  .creator-video-window button { display: block; }
+  .creator-video-window button:focus-visible { outline-offset: -5px; }
+  .creator-play { display: grid; place-items: center; width: 58px; height: 58px; border-radius: 50%; background: #f7f4fc; color: #21172f; box-shadow: 0 4px 20px #0004; }
+  .creator-products {
+    display: flex;
+    align-items: center;
+    gap: clamp(12px, 4vw, 28px);
+    min-height: 164px;
+    padding: clamp(16px, 4vw, 28px);
+    border: 1px solid var(--color-hairline);
+    border-radius: 16px;
+    background: linear-gradient(118deg, #10151f 44%, #152d50);
+  }
+  .creator-products:hover { border-color: #91bcff80; }
+  .creator-products-preview {
+    display: grid;
+    place-items: center;
+    width: clamp(92px, 29vw, 158px);
+    aspect-ratio: 1;
+    flex-shrink: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #e3edfa;
+    color: #1a4277;
+    box-shadow: 3px 4px 0 #8196b5, 12px 17px 28px #02050cb3;
+    transform: perspective(520px) rotateY(-17deg) rotateX(8deg) rotateZ(5deg);
+  }
+  .creator-products-preview img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: contain;
+    padding: 8%;
+    mix-blend-mode: multiply;
+  }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .creator-products-preview { transition: transform var(--dur-slow) var(--ease-out); }
+    .creator-products:hover .creator-products-preview {
+      transform: perspective(520px) translateY(-4px) rotateY(-9deg) rotateX(4deg) rotateZ(2deg);
+    }
+  }
+  .creator-products-copy { flex: 1; min-width: 0; }
+  .creator-products-copy strong { display: block; font-size: clamp(18px, 5vw, 24px); font-weight: 650; }
+  .creator-products-copy > span { display: flex; align-items: center; gap: 6px; margin-top: 5px; color: #b7d5ff; font-size: 13px; }
+  .creator-products-copy svg { flex-shrink: 0; }
+  .creator-products:hover .creator-products-copy > span { text-decoration: underline; text-underline-offset: 3px; }
+}
+@media (min-width: 768px) { .creator-avatar { width: 112px; height: 112px; } }

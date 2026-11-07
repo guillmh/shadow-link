@@ -21,7 +21,7 @@ export default function ProductCard({
       rel={linkUrl && linkUrl !== "#" ? "noopener noreferrer" : undefined}
       aria-label={`Abrir ${producto.nombre}`}
       title={producto.nombre}
-      className="group block w-full rounded-lg transition-transform duration-[var(--dur-base)] ease-[var(--ease-out)] hover:-translate-y-1 focus-visible:outline-none focus-visible:shadow-[var(--ring)]"
+      className="product-tile group block w-full rounded-lg transition-transform duration-[var(--dur-base)] ease-[var(--ease-out)] hover:-translate-y-1 focus-visible:outline-none focus-visible:shadow-[var(--ring)]"
     >
       <div className="relative w-full aspect-square thumb rounded-lg">
         <Image
@@ -37,11 +37,11 @@ export default function ProductCard({
         </span>
       </div>
 
-      <div className="pt-2">
-        <h3 className="font-body text-sm font-medium text-ink line-clamp-2 leading-snug">
+      <div className="px-3 pt-3 pb-3">
+        <h2 className="font-body text-sm font-semibold text-ink line-clamp-2 leading-snug">
           {producto.nombre}
-        </h3>
-        <p className="mt-2 text-[11px] leading-relaxed text-muted line-clamp-2">
+        </h2>
+        <p className="mt-2 text-xs leading-relaxed text-muted line-clamp-2">
           {textoSecundario}
         </p>
       </div>

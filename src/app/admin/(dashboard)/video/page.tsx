@@ -65,7 +65,11 @@ export default function AdminVideo() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl text-ink mb-6">Último video</h1>
+      <h1 className="font-display text-2xl text-ink mb-2">Video de respaldo</h1>
+      <p className="text-sm text-muted mb-6">
+        La portada muestra el video más reciente de ShadowEZ en YouTube. Este
+        enlace se usa si no se puede consultar el canal.
+      </p>
 
       <form
         onSubmit={handleSubmit(onSubmit)}

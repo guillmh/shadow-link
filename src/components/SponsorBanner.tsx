@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { Sponsor } from "@/types/sponsor";
+import { ArrowUpRight } from "lucide-react";
+import type { Sponsor } from "@/types/sponsor";
 
 export default function SponsorBanner({
   sponsor,
@@ -13,33 +14,28 @@ export default function SponsorBanner({
       href={sponsor.link}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex mx-4 my-4 glass card-interactive rounded-lg overflow-hidden hover:-translate-y-0.5 hover:shadow-lg"
+      className="creator-sponsor"
     >
-      <div className="w-1 shrink-0 bg-gradient-to-b from-accent to-[#7c5cf0]" />
-      <div className="flex items-center gap-4 p-4 flex-1 min-w-0">
-        <div className="relative w-12 h-12 shrink-0 thumb">
-          <Image
-            src={sponsor.logo}
-            alt={sponsor.marca}
-            fill
-            sizes="48px"
-            className="object-contain p-1.5"
-          />
-        </div>
-        <div className="flex-1 min-w-0">
-          <span className="label-mono label-accent">
-            [ Patrocinado ]
+      <span className="creator-sponsor-logo">
+        <Image
+          src={sponsor.logo}
+          alt=""
+          width={52}
+          height={52}
+          className="object-contain"
+        />
+      </span>
+      <span className="min-w-0 flex-1">
+        <small>Colaboración patrocinada</small>
+        <strong>{sponsor.marca}</strong>
+        {sponsor.descripcion && (
+          <span className="creator-sponsor-description">
+            {sponsor.descripcion}
           </span>
-          <p className="font-body text-sm text-ink font-semibold truncate">
-            {sponsor.marca}
-          </p>
-          {sponsor.descripcion && (
-            <p className="font-body text-xs text-muted truncate">
-              {sponsor.descripcion}
-            </p>
-          )}
-        </div>
-      </div>
+        )}
+      </span>
+      <ArrowUpRight size={18} aria-hidden="true" className="shrink-0" />
+      <span className="sr-only">Abre en otra pestaña</span>
     </a>
   );
 }

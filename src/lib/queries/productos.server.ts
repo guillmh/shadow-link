@@ -102,3 +102,23 @@ export async function fetchProductosServer(): Promise<Producto[]> {
 
   return (data ?? []) as Producto[];
 }
+
+export async function fetchUltimoProducto(): Promise<
+  Pick<Producto, "nombre" | "imagen"> | null
+> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("productos")
+    .select("nombre, imagen")
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    logger.error("Error cargando el último producto", error);
+    return null;
+  }
+
+  return data;
+}

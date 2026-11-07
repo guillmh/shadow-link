@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Impeccable downloads the engine for the local platform.
+/.agents/skills/impeccable/scripts/bin/

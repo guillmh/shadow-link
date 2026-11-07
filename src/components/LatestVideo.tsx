@@ -1,66 +1,79 @@
 "use client";
-import Skeleton from "./Skeleton";
 
 import { useState } from "react";
 import Image from "next/image";
 import { Play } from "lucide-react";
+import { canalYouTube, type VideoYouTube } from "@/lib/youtube";
 
-function extraerVideoId(url: string): string | null {
-  const match = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-  return match ? match[1] : null;
-}
-
-export default function LatestVideo({ videoUrl }: { videoUrl: string | null }) {
+export default function LatestVideo({ video }: { video: VideoYouTube }) {
   const [reproduciendo, setReproduciendo] = useState(false);
-  const videoId = videoUrl ? extraerVideoId(videoUrl) : null;
-
-  if (!videoId) {
-    return (
-      <section className="px-4 py-4">
-        <span className="label-mono">
-          [ Último video ]
-        </span>
-        <Skeleton className="mt-2 aspect-video w-full rounded-lg" />
-      </section>
-    );
-  }
+  const detalles = [video.vistas, video.antiguedad].filter(Boolean).join(" · ");
 
   return (
-    <section className="px-4 py-4">
-      <span className="label-mono">
-        [ Último video ]
-      </span>
-
-      <div className="mt-2 relative aspect-video w-full rounded-lg overflow-hidden border border-white/65 bg-ink shadow-md">
+    <section className="creator-video" aria-labelledby="latest-video-title">
+      <div className="creator-video-window">
         {reproduciendo ? (
           <iframe
-            src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
-            title="Último video"
-            className="w-full h-full"
+            src={`https://www.youtube-nocookie.com/embed/${video.id}?autoplay=1`}
+            title={video.titulo}
+            className="h-full w-full"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           />
         ) : (
           <button
+            type="button"
             onClick={() => setReproduciendo(true)}
-            className="group relative w-full h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset"
-            aria-label="Reproducir video"
+            className="group relative h-full w-full cursor-pointer"
+            aria-label={`Reproducir: ${video.titulo}`}
           >
             <Image
-              src={`https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`}
-              alt="Miniatura del último video"
+              src={`https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`}
+              alt=""
               fill
-              sizes="(max-width: 672px) 100vw, 672px"
-              className="w-full h-full object-cover"
-              loading="lazy"
+              sizes="(max-width: 672px) calc(100vw - 32px), 640px"
+              className="object-cover"
             />
-            <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
-              <div className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center shadow-md transition-transform duration-[var(--dur-base)] ease-[var(--ease-spring)] group-hover:scale-105">
-                <Play size={22} className="text-ink fill-ink ml-0.5" />
-              </div>
-            </div>
+            <span className="absolute inset-0 flex items-center justify-center bg-black/15 transition-colors group-hover:bg-black/25">
+              <span className="creator-play">
+                <Play
+                  size={23}
+                  aria-hidden="true"
+                  className="ml-0.5 fill-current"
+                />
+              </span>
+            </span>
           </button>
         )}
+      </div>
+      <div className="creator-video-meta">
+        <a
+          href={canalYouTube}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="creator-video-avatar"
+          aria-label="Canal de ShadowEZ en YouTube"
+        >
+          <Image
+            src={video.avatarUrl ?? "/logo.webp"}
+            alt=""
+            width={40}
+            height={40}
+          />
+        </a>
+        <div className="min-w-0">
+          <h2 id="latest-video-title">
+            <a
+              href={`https://www.youtube.com/watch?v=${video.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {video.titulo}
+            </a>
+          </h2>
+          <p>ShadowEZ</p>
+          {detalles && <p>{detalles}</p>}
+        </div>
       </div>
     </section>
   );

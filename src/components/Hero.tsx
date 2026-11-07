@@ -1,13 +1,8 @@
 import Image from "next/image";
+import { Mail } from "lucide-react";
 import { FaYoutube, FaInstagram, FaTiktok, FaFacebook } from "react-icons/fa";
 
-type SocialLink = {
-  nombre: string;
-  url: string;
-  Icono: React.ElementType;
-};
-
-const socialLinks: SocialLink[] = [
+const socialLinks = [
   {
     nombre: "YouTube",
     url: "https://youtube.com/@shadowez9",
@@ -26,42 +21,49 @@ const socialLinks: SocialLink[] = [
   },
 ];
 
-export default function Hero() {
+export default function Hero({ portadaUrl }: { portadaUrl: string }) {
   return (
-    <section className="flex flex-col items-center text-center px-4 pt-10 pb-6">
-      <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden shadow-md border-[3px] border-solid border-transparent bg-gradient-to-br from-accent/50 to-[#7c5cf0]/50">
+    <header className="creator-header">
+      <div className="creator-cover" aria-hidden="true">
         <Image
-          src="/logo.webp"
-          alt="Foto de perfil"
+          src={portadaUrl}
+          alt=""
           fill
-          sizes="(max-width: 768px) 96px, 128px"
+          sizes="100vw"
           className="object-cover"
-          priority
+          preload
         />
       </div>
-
-      <h1 className="mt-4 font-display text-xl md:text-2xl font-bold tracking-tight">ShadowEZ</h1>
-      <a
-        href="mailto:guillmhbusiness@gmail.com"
-        className="mt-1 text-sm md:text-base text-muted max-w-xs rounded-sm transition-colors hover:text-ink focus-visible:outline-none focus-visible:shadow-[var(--ring)]"
-      >
-        📧contacto@shadowez.com
-      </a>
-
-      <div className="flex gap-4 mt-4">
-        {socialLinks.map(({ nombre, url, Icono }) => (
-          <a
-            key={nombre}
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group w-10 h-10 flex items-center justify-center rounded-full glass card-interactive transition hover:-translate-y-0.5"
-            aria-label={nombre}
-          >
-            <Icono size={20} className="text-ink transition-colors group-hover:text-accent" />
-          </a>
-        ))}
+      <div className="creator-profile">
+        <Image
+          src="/logo.webp"
+          alt="Perfil de ShadowEZ"
+          width={112}
+          height={112}
+          className="creator-avatar"
+        />
+        <h1 className="font-display">ShadowEZ</h1>
+        <a href="mailto:guillmhbusiness@gmail.com" className="creator-email">
+          <Mail size={15} aria-hidden="true" />
+          <span>
+            <small>Negocios y colaboraciones</small>contacto@shadowez.com
+          </span>
+        </a>
+        <nav className="creator-socials" aria-label="Redes sociales">
+          {socialLinks.map(({ nombre, url, Icono }) => (
+            <a
+              key={nombre}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${nombre} (abre en otra pestaña)`}
+              title={nombre}
+            >
+              <Icono size={20} aria-hidden="true" />
+            </a>
+          ))}
+        </nav>
       </div>
-    </section>
+    </header>
   );
 }

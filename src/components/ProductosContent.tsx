@@ -73,10 +73,12 @@ export default function ProductosContent({
         <div className="relative">
           <Search
             size={16}
+            aria-hidden="true"
             className="absolute left-3 top-1/2 -translate-y-1/2 text-muted"
           />
           <input
-            type="text"
+            type="search"
+            aria-label="Buscar producto"
             value={busqueda}
             onChange={(e) => handleBusquedaChange(e.target.value)}
             placeholder="Buscar producto..."

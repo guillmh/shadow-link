@@ -7,6 +7,7 @@ const enlaces = [
   { href: "/admin", label: "Productos" },
   { href: "/admin/sponsors", label: "Sponsors" },
   { href: "/admin/video", label: "Video" },
+  { href: "/admin/apariencia", label: "Apariencia" },
 ];
 
 export default function AdminNav() {
