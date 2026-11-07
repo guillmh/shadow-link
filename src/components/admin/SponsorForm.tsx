@@ -41,63 +41,61 @@ export default function SponsorForm({ sponsorExistente }: SponsorFormProps) {
 
   const logoActual = sponsorExistente?.logo ?? "";
   const [archivoLogo, setArchivoLogo] = useState<File | null>(null);
-  const [subiendo, setSubiendo] = useState(false);
+  const [fase, setFase] = useState<"imagen" | "datos" | null>(null);
   const [error, setError] = useState("");
 
   async function onSubmit(datos: SponsorFormValues) {
     setError("");
-    setSubiendo(true);
+    if (!archivoLogo && !logoActual) {
+      setError("Elige un logo para el sponsor.");
+      return;
+    }
+    setFase(archivoLogo ? "imagen" : "datos");
 
-    let urlLogo = logoActual || null;
+    try {
+      let urlLogo = logoActual;
+      if (archivoLogo) {
+        const resultado = await subirImagen(archivoLogo, "productos", "sponsors");
+        if (!resultado.url) {
+          setError(resultado.error ?? "No se pudo subir el logo.");
+          return;
+        }
+        urlLogo = resultado.url;
+      }
 
-    if (archivoLogo) {
-      const resultado = await subirImagen(archivoLogo, "productos", "sponsors");
-      if (resultado.error) {
-        setError("Error al subir logo: " + resultado.error);
-        setSubiendo(false);
+      setFase("datos");
+      const supabase = createClient();
+      const payload = {
+        marca: datos.marca,
+        descripcion: datos.descripcion || null,
+        link: datos.link,
+        logo: urlLogo,
+        fecha_inicio: new Date(datos.fecha_inicio).toISOString(),
+        fecha_fin: new Date(datos.fecha_fin).toISOString(),
+      };
+
+      const { error: dbError } = sponsorExistente
+        ? await supabase.from("sponsors").update(payload).eq("id", sponsorExistente.id)
+        : await supabase.from("sponsors").insert(payload);
+
+      if (dbError) {
+        setError("Error al guardar: " + dbError.message);
         return;
       }
-      urlLogo = resultado.url;
+      router.push("/admin/sponsors");
+      router.refresh();
+    } catch {
+      setError("No se pudo guardar el sponsor. Vuelve a intentarlo.");
+    } finally {
+      setFase(null);
     }
-
-    if (!urlLogo) {
-      setError("Debes subir un logo");
-      setSubiendo(false);
-      return;
-    }
-
-    const supabase = createClient();
-    const payload = {
-      marca: datos.marca,
-      descripcion: datos.descripcion || null,
-      link: datos.link,
-      logo: urlLogo,
-      fecha_inicio: new Date(datos.fecha_inicio).toISOString(),
-      fecha_fin: new Date(datos.fecha_fin).toISOString(),
-    };
-
-    const { error: dbError } = esEdicion
-      ? await supabase
-          .from("sponsors")
-          .update(payload)
-          .eq("id", sponsorExistente!.id)
-      : await supabase.from("sponsors").insert(payload);
-
-    setSubiendo(false);
-
-    if (dbError) {
-      setError("Error al guardar: " + dbError.message);
-      return;
-    }
-
-    router.push("/admin/sponsors");
-    router.refresh();
   }
 
   return (
     <AdminForm
       onSubmit={handleSubmit(onSubmit)}
-      enviando={subiendo}
+      enviando={fase !== null}
+      textoEspera={fase === "imagen" ? "Subiendo logo…" : "Guardando sponsor…"}
       error={error}
       textoBoton={esEdicion ? "Guardar cambios" : "Crear sponsor"}
     >
@@ -116,8 +114,8 @@ export default function SponsorForm({ sponsorExistente }: SponsorFormProps) {
       />
 
       <div>
-        <label className="label-mono block mb-1">Fecha inicio</label>
-        <input type="datetime-local" {...register("fecha_inicio")} className="field" />
+        <label htmlFor="fecha-inicio" className="label-mono block mb-1">Fecha de inicio</label>
+        <input id="fecha-inicio" type="datetime-local" {...register("fecha_inicio")} className="field" />
         {errors.fecha_inicio && (
           <p className="font-mono text-[11px] text-danger mt-1.5">
             {errors.fecha_inicio.message}
@@ -126,8 +124,8 @@ export default function SponsorForm({ sponsorExistente }: SponsorFormProps) {
       </div>
 
       <div>
-        <label className="label-mono block mb-1">Fecha fin</label>
-        <input type="datetime-local" {...register("fecha_fin")} className="field" />
+        <label htmlFor="fecha-fin" className="label-mono block mb-1">Fecha de fin</label>
+        <input id="fecha-fin" type="datetime-local" {...register("fecha_fin")} className="field" />
         {errors.fecha_fin && (
           <p className="font-mono text-[11px] text-danger mt-1.5">
             {errors.fecha_fin.message}
@@ -138,9 +136,11 @@ export default function SponsorForm({ sponsorExistente }: SponsorFormProps) {
       <ImageField
         etiqueta="Logo"
         imagenActual={logoActual}
-        tieneArchivo={archivoLogo !== null}
-        onArchivo={setArchivoLogo}
-        classNamePreview="thumb w-20 h-20 object-contain mb-2"
+        archivo={archivoLogo}
+        onArchivo={(archivo) => {
+          setArchivoLogo(archivo);
+          setError("");
+        }}
       />
     </AdminForm>
   );

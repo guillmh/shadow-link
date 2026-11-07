@@ -2,25 +2,27 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Package, Tags, Handshake, PlaySquare, Palette } from "lucide-react";
 
 const enlaces = [
-  { href: "/admin", label: "Productos" },
-  { href: "/admin/sponsors", label: "Sponsors" },
-  { href: "/admin/video", label: "Video" },
-  { href: "/admin/apariencia", label: "Apariencia" },
+  { href: "/admin", label: "Productos", icon: Package },
+  { href: "/admin/categorias", label: "Categorías", icon: Tags },
+  { href: "/admin/sponsors", label: "Sponsors", icon: Handshake },
+  { href: "/admin/video", label: "Video", icon: PlaySquare },
+  { href: "/admin/apariencia", label: "Apariencia", icon: Palette },
 ];
 
 export default function AdminNav() {
   const pathname = usePathname();
 
   function estaActivo(href: string) {
-    if (href === "/admin") return pathname === "/admin";
+    if (href === "/admin") return pathname === "/admin" || pathname.startsWith("/admin/productos/");
     return pathname === href || pathname.startsWith(href + "/");
   }
 
   return (
-    <nav className="max-w-4xl mx-auto px-4 pb-3 flex gap-2 flex-wrap">
-      {enlaces.map(({ href, label }) => {
+    <nav aria-label="Administración" className="admin-width admin-nav">
+      {enlaces.map(({ href, label, icon: Icon }) => {
         const activo = estaActivo(href);
         return (
           <Link
@@ -29,6 +31,7 @@ export default function AdminNav() {
             className={`nav-link${activo ? " active" : ""}`}
             aria-current={activo ? "page" : undefined}
           >
+            <Icon size={16} aria-hidden="true" />
             {label}
           </Link>
         );

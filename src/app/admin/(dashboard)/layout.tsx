@@ -1,3 +1,6 @@
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import AdminNav from "@/components/admin/AdminNav";
 import LogoutButton from "@/components/admin/LogoutButton";
 
@@ -7,18 +10,24 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen">
-      <header className="glass sticky top-0 z-20">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <span className="font-mono text-xs uppercase tracking-wider text-ink">
-            [ Panel Admin ]
-          </span>
-          <LogoutButton />
+    <>
+      <header className="admin-header">
+        <div className="admin-width flex items-center justify-between gap-2 py-3">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <Image src="/logo.webp" alt="" width={36} height={36} className="shrink-0 rounded-sm" />
+            <span className="font-semibold">ShadowEZ</span>
+          </div>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Link href="/" target="_blank" rel="noopener noreferrer" className="btn btn-ghost">
+              Ver sitio <ArrowUpRight size={14} aria-hidden="true" />
+            </Link>
+            <LogoutButton />
+          </div>
         </div>
         <AdminNav />
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-6">{children}</main>
-    </div>
+      <main className="admin-width admin-content">{children}</main>
+    </>
   );
 }

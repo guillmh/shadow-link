@@ -9,7 +9,7 @@ type OpcionesUseAdminList<T extends ConId> = {
   /** Función de carga estable (importada del módulo de queries). */
   cargar: () => Promise<T[]>;
   tabla: string;
-  mensajeConfirmar: string;
+  mensajeConfirmar: string | ((item: T) => string);
   /**
    * Sponsors pide `count: "exact"` y avisa si no se borró nada; productos no.
    * Se mantiene como está para no cambiar el comportamiento de ninguna de las dos listas.
@@ -29,18 +29,27 @@ export function useAdminList<T extends ConId>({
 }: OpcionesUseAdminList<T>) {
   const [items, setItems] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
+  const [errorCarga, setErrorCarga] = useState("");
 
   useEffect(() => {
     const cargarItems = async () => {
-      const data = await cargar();
-      setItems(data);
-      setLoading(false);
+      try {
+        setItems(await cargar());
+      } catch (error) {
+        setErrorCarga(error instanceof Error ? error.message : "No se pudo cargar la lista.");
+      } finally {
+        setLoading(false);
+      }
     };
     cargarItems();
   }, [cargar]);
 
   async function eliminar(id: number) {
-    const confirmar = confirm(mensajeConfirmar);
+    const item = items.find((fila) => fila.id === id);
+    if (!item) return;
+    const confirmar = confirm(
+      typeof mensajeConfirmar === "function" ? mensajeConfirmar(item) : mensajeConfirmar,
+    );
     if (!confirmar) return;
 
     const supabase = createClient();
@@ -61,5 +70,5 @@ export function useAdminList<T extends ConId>({
     setItems((prev) => prev.filter((item) => item.id !== id));
   }
 
-  return { items, loading, eliminar };
+  return { items, loading, errorCarga, eliminar };
 }

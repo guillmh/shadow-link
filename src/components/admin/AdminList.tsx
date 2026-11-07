@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import Link from "next/link";
-import { Trash2, Pencil, Plus } from "lucide-react";
+import { Trash2, Pencil, Plus, LoaderCircle } from "lucide-react";
 
 type AdminListProps<T> = {
   titulo: string;
@@ -10,6 +10,9 @@ type AdminListProps<T> = {
   loading: boolean;
   items: T[];
   mensajeVacio: string;
+  descripcion?: string;
+  errorCarga?: string;
+  nombreItem?: (item: T) => string;
   onEliminar: (id: number) => void;
   /** Parte específica de la fila: miniatura + nombre + subtítulo/badge. */
   renderContenido: (item: T) => ReactNode;
@@ -27,12 +30,15 @@ export default function AdminList<T extends { id: number }>({
   loading,
   items,
   mensajeVacio,
+  descripcion,
+  errorCarga,
+  nombreItem,
   onEliminar,
   renderContenido,
 }: AdminListProps<T>) {
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between gap-3 mb-6">
         <h1 className="font-display text-2xl text-ink">{titulo}</h1>
         <Link href={hrefNuevo} className="btn btn-primary">
           <Plus size={14} />
@@ -40,7 +46,14 @@ export default function AdminList<T extends { id: number }>({
         </Link>
       </div>
 
-      {loading && <p className="font-mono text-sm text-muted">Cargando...</p>}
+      {descripcion && <p className="text-sm text-muted mb-5">{descripcion}</p>}
+      {loading && (
+        <p role="status" className="flex items-center gap-2 text-sm text-muted">
+          <LoaderCircle size={16} className="admin-spinner" aria-hidden="true" />
+          Cargando…
+        </p>
+      )}
+      {errorCarga && <p role="alert" className="text-sm text-danger">{errorCarga}</p>}
 
       <div className="flex flex-col gap-3">
         {items.map((item) => (
@@ -50,14 +63,14 @@ export default function AdminList<T extends { id: number }>({
             <Link
               href={`${baseEdicion}/${item.id}/editar`}
               className="icon-btn"
-              aria-label="Editar"
+              aria-label={nombreItem ? `Editar ${nombreItem(item)}` : "Editar"}
             >
               <Pencil size={16} />
             </Link>
             <button
               onClick={() => onEliminar(item.id)}
               className="icon-btn danger"
-              aria-label="Eliminar"
+              aria-label={nombreItem ? `Eliminar ${nombreItem(item)}` : "Eliminar"}
             >
               <Trash2 size={16} />
             </button>
@@ -65,8 +78,8 @@ export default function AdminList<T extends { id: number }>({
         ))}
       </div>
 
-      {!loading && items.length === 0 && (
-        <p className="font-mono text-sm text-muted">{mensajeVacio}</p>
+      {!loading && !errorCarga && items.length === 0 && (
+        <p className="arow text-sm text-muted">{mensajeVacio}</p>
       )}
     </div>
   );

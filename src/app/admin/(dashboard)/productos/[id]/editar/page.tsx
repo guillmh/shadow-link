@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
+import { listarCategorias } from "@/lib/queries/categorias";
 import ProductoForm from "@/components/admin/ProductoForm";
-import { Producto } from "@/types/producto";
+import type { ProductoAdmin } from "@/types/producto";
 
 export default async function EditarProductoPage({
   params,
@@ -12,11 +13,10 @@ export default async function EditarProductoPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from("productos")
-    .select("*")
-    .eq("id", id)
-    .single<Producto>();
+  const [{ data, error }, opciones] = await Promise.all([
+    supabase.from("productos").select("*").eq("id", id).single<ProductoAdmin>(),
+    listarCategorias(supabase),
+  ]);
 
   // 0 filas: `PGRST116` (id desconocido o fuera del alcance de RLS) o
   // `22P02` (id que no puede convertirse a número). En ambos casos no existe
@@ -38,7 +38,7 @@ export default async function EditarProductoPage({
   return (
     <div>
       <h1 className="font-display text-2xl text-ink mb-6">Editar producto</h1>
-      <ProductoForm productoExistente={data} />
+      <ProductoForm productoExistente={data} {...opciones} />
     </div>
   );
 }

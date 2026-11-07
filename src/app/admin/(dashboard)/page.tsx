@@ -2,12 +2,12 @@
 
 import Image from "next/image";
 import { fetchProductos } from "@/lib/queries/productos";
-import { Producto } from "@/types/producto";
+import type { ProductoAdmin } from "@/types/producto";
 import AdminList from "@/components/admin/AdminList";
 import { useAdminList } from "@/components/admin/useAdminList";
 
 export default function AdminProductos() {
-  const { items: productos, loading, eliminar } = useAdminList<Producto>({
+  const { items: productos, loading, errorCarga, eliminar } = useAdminList<ProductoAdmin>({
     cargar: fetchProductos,
     tabla: "productos",
     mensajeConfirmar:
@@ -15,11 +15,12 @@ export default function AdminProductos() {
   });
 
   return (
-    <AdminList<Producto>
+    <AdminList<ProductoAdmin>
       titulo="Productos"
       hrefNuevo="/admin/productos/nuevo"
       baseEdicion="/admin/productos"
       loading={loading}
+      errorCarga={errorCarga}
       items={productos}
       mensajeVacio="No hay productos todavía."
       onEliminar={eliminar}
@@ -39,9 +40,11 @@ export default function AdminProductos() {
             <p className="font-body text-sm text-ink truncate">
               {producto.nombre}
             </p>
-            <span className="font-mono text-[10px] uppercase text-muted">
-              {producto.categoria}
-            </span>
+            {producto.categoria ? (
+              <span className="text-xs text-muted">{producto.categoria}</span>
+            ) : (
+              <span className="text-xs font-medium text-danger">Sin categoría · Oculto</span>
+            )}
           </div>
         </>
       )}

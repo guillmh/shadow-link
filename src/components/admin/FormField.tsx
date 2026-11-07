@@ -31,7 +31,7 @@ export default function FormField({
         className={`field${error ? " is-error" : ""}`}
       />
       {error && (
-        <p id={idError} className="font-mono text-[11px] text-danger mt-1.5">{error}</p>
+        <p id={idError} className="mt-1.5 text-sm text-danger">{error}</p>
       )}
     </div>
   );

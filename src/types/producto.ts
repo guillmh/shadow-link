@@ -6,3 +6,7 @@ export type Producto = {
   link?: string | null;
   descripcion?: string | null;
 };
+
+export type ProductoAdmin = Omit<Producto, "categoria"> & {
+  categoria: string | null;
+};

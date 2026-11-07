@@ -41,6 +41,7 @@ Configura las variables en `.env.local` (ver `.env.example`):
 | `/productos` | Catálogo de productos |
 | `/admin/login` | Login de administración |
 | `/admin` | Dashboard |
+| `/admin/categorias` | Gestionar categorías de productos |
 | `/admin/video` | Gestionar último video |
 | `/admin/sponsors` | Listado de sponsors |
 | `/admin/sponsors/nuevo` | Crear sponsor |
@@ -49,5 +50,7 @@ Configura las variables en `.env.local` (ver `.env.example`):
 | `/admin/productos/[id]/editar` | Editar producto |
 
 ## Notas
+
+Para habilitar la gestión de categorías, aplica [la migración SQL](supabase/migrations/20261107000000_categorias_productos.sql) en el proyecto de Supabase que usa la app. Se puede ejecutar una vez desde **SQL Editor** en una base que ya tenga la tabla `public.productos`. La migración importa las categorías existentes y conserva los productos cuando se elimina una categoría.
 
 En Next.js 16, la convención del archivo `middleware` fue renombrada a `proxy`. Tenlo en cuenta si estás siguiendo documentación de versiones anteriores.

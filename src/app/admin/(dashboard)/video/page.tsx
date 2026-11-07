@@ -6,11 +6,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createClient } from "@/lib/supabase/client";
 import { videoSchema, VideoFormValues } from "@/lib/schemas/video";
 import FormField from "@/components/admin/FormField";
+import AdminForm from "@/components/admin/AdminForm";
 
 export default function AdminVideo() {
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState("");
+  const [errorGuardar, setErrorGuardar] = useState("");
 
   const {
     register,
@@ -42,6 +44,7 @@ export default function AdminVideo() {
   async function onSubmit(datos: VideoFormValues) {
     setGuardando(true);
     setMensaje("");
+    setErrorGuardar("");
 
     const supabase = createClient();
     const { error } = await supabase
@@ -52,7 +55,7 @@ export default function AdminVideo() {
     setGuardando(false);
 
     if (error) {
-      setMensaje("Error al guardar: " + error.message);
+      setErrorGuardar("Error al guardar: " + error.message);
       return;
     }
 
@@ -60,7 +63,7 @@ export default function AdminVideo() {
   }
 
   if (cargando) {
-    return <p className="font-mono text-sm text-muted">Cargando...</p>;
+    return <p role="status" className="text-sm text-muted">Cargando video…</p>;
   }
 
   return (
@@ -71,9 +74,11 @@ export default function AdminVideo() {
         enlace se usa si no se puede consultar el canal.
       </p>
 
-      <form
+      <AdminForm
         onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col gap-4 max-w-md"
+        enviando={guardando}
+        textoBoton="Guardar video"
+        error={errorGuardar}
       >
         <FormField
           label="Link de YouTube"
@@ -83,12 +88,8 @@ export default function AdminVideo() {
           placeholder="https://www.youtube.com/watch?v=..."
         />
 
-        {mensaje && <p className="font-mono text-[11px] text-accent">{mensaje}</p>}
-
-        <button type="submit" disabled={guardando} className="btn btn-primary">
-          {guardando ? "Guardando..." : "Guardar"}
-        </button>
-      </form>
+      </AdminForm>
+      {mensaje && <p role="status" className="mt-4 text-sm text-accent">{mensaje}</p>}
     </div>
   );
 }

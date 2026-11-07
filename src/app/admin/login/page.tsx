@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import AdminForm from "@/components/admin/AdminForm";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
@@ -34,50 +36,43 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-4">
-      <form
-        onSubmit={handleSubmit}
-        className="glass-strong w-full max-w-sm rounded-xl shadow-lg p-6"
-      >
-        <span className="font-mono text-[10px] uppercase tracking-wider text-muted">
-          [ Admin ]
-        </span>
-        <h1 className="font-display text-xl text-ink mt-1 mb-6">
-          Iniciar sesión
-        </h1>
-
-        <label htmlFor="correo" className="label-mono block mb-1">Correo</label>
-        <input
-          id="correo"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          aria-invalid={error ? true : undefined}
-          aria-describedby={error ? "login-error" : undefined}
-          className="field mb-4"
-        />
-
-        <label htmlFor="password" className="label-mono block mb-1">Contraseña</label>
-        <input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          aria-invalid={error ? true : undefined}
-          aria-describedby={error ? "login-error" : undefined}
-          className="field mb-4"
-        />
-
-        {error && (
-          <p id="login-error" className="font-mono text-[11px] text-danger mb-4">{error}</p>
-        )}
-
-        <button type="submit" disabled={loading} className="btn btn-primary w-full">
-          {loading ? "Ingresando..." : "Ingresar"}
-        </button>
-      </form>
+    <main className="min-h-svh flex items-center justify-center px-4 py-6">
+      <div className="w-full max-w-sm">
+        <Image src="/logo.webp" alt="ShadowEZ" width={48} height={48} className="mb-3 rounded-sm" />
+        <h1 className="font-display text-2xl text-ink mb-4">Iniciar sesión</h1>
+        <AdminForm
+          onSubmit={handleSubmit}
+          enviando={loading}
+          error={error}
+          textoBoton="Ingresar"
+          textoEspera="Ingresando…"
+        >
+          <div>
+            <label htmlFor="correo" className="label-mono block mb-1">Correo</label>
+            <input
+              id="correo"
+              type="email"
+              autoComplete="username"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="field"
+            />
+          </div>
+          <div>
+            <label htmlFor="password" className="label-mono block mb-1">Contraseña</label>
+            <input
+              id="password"
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="field"
+            />
+          </div>
+        </AdminForm>
+      </div>
     </main>
   );
 }

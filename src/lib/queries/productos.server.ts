@@ -34,7 +34,10 @@ export async function fetchProductosPaginado({
   const desde = (paginaSegura - 1) * porPaginaSegura;
   const hasta = desde + porPaginaSegura - 1;
 
-  let query = supabase.from("productos").select("*", { count: "exact" });
+  let query = supabase
+    .from("productos")
+    .select("*", { count: "exact" })
+    .not("categoria", "is", null);
 
   if (categoria && categoria !== "todos") {
     query = query.eq("categoria", categoria);
@@ -70,6 +73,7 @@ export async function fetchCategorias(): Promise<string[]> {
   const { data, error } = await supabase
     .from("productos")
     .select("categoria")
+    .not("categoria", "is", null)
     .order("categoria", { ascending: true });
 
   if (error) {
@@ -93,6 +97,7 @@ export async function fetchProductosServer(): Promise<Producto[]> {
   const { data, error } = await supabase
     .from("productos")
     .select("*")
+    .not("categoria", "is", null)
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -110,6 +115,7 @@ export async function fetchUltimoProducto(): Promise<
   const { data, error } = await supabase
     .from("productos")
     .select("nombre, imagen")
+    .not("categoria", "is", null)
     .order("created_at", { ascending: false })
     .order("id", { ascending: false })
     .limit(1)

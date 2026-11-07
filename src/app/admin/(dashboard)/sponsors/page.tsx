@@ -7,7 +7,7 @@ import AdminList from "@/components/admin/AdminList";
 import { useAdminList } from "@/components/admin/useAdminList";
 
 export default function AdminSponsors() {
-  const { items: sponsors, loading, eliminar } = useAdminList<Sponsor>({
+  const { items: sponsors, loading, errorCarga, eliminar } = useAdminList<Sponsor>({
     cargar: fetchSponsors,
     tabla: "sponsors",
     mensajeConfirmar: "¿Eliminar este sponsor? Esta acción no se puede deshacer.",
@@ -28,6 +28,7 @@ export default function AdminSponsors() {
       hrefNuevo="/admin/sponsors/nuevo"
       baseEdicion="/admin/sponsors"
       loading={loading}
+      errorCarga={errorCarga}
       items={sponsors}
       mensajeVacio="No hay sponsors todavía."
       onEliminar={eliminar}

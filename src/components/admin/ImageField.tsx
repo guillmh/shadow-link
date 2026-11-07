@@ -1,48 +1,75 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect, useId, useRef, useState } from "react";
+import { ImagePlus } from "lucide-react";
 
 type ImageFieldProps = {
-  /** Texto de la etiqueta: «Imagen» (productos) o «Logo» (sponsors). */
   etiqueta: string;
-  /** Imagen ya guardada, se muestra como vista previa. */
   imagenActual: string;
-  /** Si hay un archivo nuevo pendiente de subir se oculta la anterior. */
-  tieneArchivo: boolean;
+  archivo: File | null;
   onArchivo: (archivo: File | null) => void;
-  /** Clases de la vista previa (productos/sponsors no usan las mismas). */
-  classNamePreview: string;
+  portada?: boolean;
 };
 
-/**
- * Campo de imagen compartido: etiqueta, vista previa de la imagen actual y
- * selector de archivo.
- */
 export default function ImageField({
   etiqueta,
   imagenActual,
-  tieneArchivo,
+  archivo,
   onArchivo,
-  classNamePreview,
+  portada = false,
 }: ImageFieldProps) {
+  const id = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [vistaPrevia, setVistaPrevia] = useState("");
+
+  const urlLocal = archivo ? vistaPrevia : "";
+  useEffect(() => {
+    if (urlLocal) return () => URL.revokeObjectURL(urlLocal);
+  }, [urlLocal]);
+  useEffect(() => {
+    if (!archivo && inputRef.current) inputRef.current.value = "";
+  }, [archivo]);
+
+  const imagen = archivo ? urlLocal : imagenActual;
+
   return (
     <div>
-      <label className="label-mono block mb-1">{etiqueta}</label>
-      {imagenActual && !tieneArchivo && (
-        <Image
-          src={imagenActual}
-          alt="Actual"
-          width={80}
-          height={80}
-          className={classNamePreview}
-        />
-      )}
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => onArchivo(e.target.files?.[0] ?? null)}
-        className="w-full font-body text-sm text-ink file:mr-3 file:cursor-pointer file:rounded-full file:border file:border-hairline file:bg-white/80 file:px-4 file:py-2 file:font-mono file:text-xs file:uppercase file:text-ink file:transition"
-      />
+      <label htmlFor={id} className="label-mono block mb-2">{etiqueta}</label>
+      <div className={`admin-image-field${portada ? " admin-image-cover" : ""}`}>
+        <div className="admin-image-preview">
+          {imagen ? (
+            <Image
+              src={imagen}
+              alt={archivo ? "Vista previa del archivo elegido" : "Imagen guardada"}
+              fill
+              sizes={portada ? "(max-width: 640px) 100vw, 560px" : "72px"}
+              unoptimized={!!archivo}
+            />
+          ) : (
+            <ImagePlus size={22} aria-hidden="true" />
+          )}
+        </div>
+        <div className="min-w-0">
+          <input
+            ref={inputRef}
+            id={id}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            aria-describedby={`${id}-ayuda`}
+            onChange={(event) => {
+              const nuevoArchivo = event.target.files?.[0] ?? null;
+              setVistaPrevia(nuevoArchivo?.type.startsWith("image/") ? URL.createObjectURL(nuevoArchivo) : "");
+              onArchivo(nuevoArchivo);
+            }}
+            className="admin-file-input"
+          />
+          <p id={`${id}-ayuda`} className="mt-2 text-xs text-muted">
+            PNG, JPEG, WebP o GIF. Máximo 5 MB.
+            {portada && " Usa una imagen horizontal."}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

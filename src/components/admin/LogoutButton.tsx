@@ -16,7 +16,8 @@ export default function LogoutButton() {
   return (
     <button
       onClick={handleLogout}
-      className="font-mono text-xs uppercase tracking-wider text-muted hover:text-ink transition-colors"
+      type="button"
+      className="btn admin-logout"
     >
       Salir
     </button>

@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 import { logger } from "@/lib/logger";
-import { Producto } from "@/types/producto";
+import type { ProductoAdmin } from "@/types/producto";
 
 /**
  * Módulo CLIENT-SAFE: usa el cliente de navegador (`@/lib/supabase/client`).
@@ -9,7 +9,7 @@ import { Producto } from "@/types/producto";
  * En caso de error lanza (en lugar de devolver `[]` silenciosamente) y lo
  * registra mediante el logger compartido.
  */
-export async function fetchProductos(): Promise<Producto[]> {
+export async function fetchProductos(): Promise<ProductoAdmin[]> {
   const supabase = createClient();
 
   const { data, error } = await supabase
@@ -22,5 +22,5 @@ export async function fetchProductos(): Promise<Producto[]> {
     throw new Error(`No se pudieron cargar los productos: ${error.message}`);
   }
 
-  return (data ?? []) as Producto[];
+  return (data ?? []) as ProductoAdmin[];
 }
