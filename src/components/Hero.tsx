@@ -2,6 +2,8 @@ import Image from "next/image";
 import { Mail } from "lucide-react";
 import { FaYoutube, FaInstagram, FaTiktok, FaFacebook } from "react-icons/fa";
 
+const correoContacto = "contacto@shadowez.com";
+
 const socialLinks = [
   {
     nombre: "YouTube",
@@ -43,10 +45,10 @@ export default function Hero({ portadaUrl }: { portadaUrl: string }) {
           className="creator-avatar"
         />
         <h1 className="font-display">ShadowEZ</h1>
-        <a href="mailto:guillmhbusiness@gmail.com" className="creator-email">
+        <a href={`mailto:${correoContacto}`} className="creator-email">
           <Mail size={15} aria-hidden="true" />
           <span>
-            <small>Negocios y colaboraciones</small>contacto@shadowez.com
+            <small>Negocios y colaboraciones</small>{correoContacto}
           </span>
         </a>
         <nav className="creator-socials" aria-label="Redes sociales">
